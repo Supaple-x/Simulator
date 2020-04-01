@@ -611,4 +611,4 @@ Build/Android/res/*/*
 
 !Plugins/RuntimeFBXImport/Source/ThirdParty/fbx/Libraries/libfbxsdk-md.lib
 
-!**/deps/**/x86
+!**/deps/**
