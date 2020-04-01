@@ -608,3 +608,7 @@ Build/Android/res/*/*
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 
 # End of https://www.gitignore.io/api/c++,csharp,visualstudio,unrealengine
+
+!Plugins/RuntimeFBXImport/Source/ThirdParty/fbx/Libraries/libfbxsdk-md.lib
+
+!**/deps/**/x86
