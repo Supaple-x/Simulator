@@ -389,14 +389,19 @@ struct FDroneData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	/** Drone mesh */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite) USkeletalMesh* Mesh;
+	/** Drone skeletal mesh */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) USkeletalMesh* SkeletalMesh;
+	/** Drone static mesh */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) UStaticMesh* StaticMesh;
+	/** Drone class */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> Class;
 	/** Max vertical speed in m/s */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float MaxSpeedVertical;
 	/** Max horizontal speed in m/s */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float MaxSpeedHorizontal;
 
-	FDroneData() : Mesh(nullptr), MaxSpeedVertical(0.f), MaxSpeedHorizontal(0.f) {};
+	FDroneData() : SkeletalMesh(nullptr), StaticMesh(nullptr), Class(AActor::StaticClass()), MaxSpeedVertical(0.f), MaxSpeedHorizontal(0.f) {};
 	
 };
 
