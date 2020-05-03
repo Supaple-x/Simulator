@@ -35,6 +35,12 @@ public:
 	bool bIsPathVisible = true;
 
 	UPROPERTY(BlueprintReadWrite)
+	bool bIsMovingActorVisible = true;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsDangerZoneVisible = true;
+
+	UPROPERTY(BlueprintReadWrite)
 	bool bIsPaused;
 
 	UPROPERTY(BlueprintReadWrite)
@@ -119,6 +125,34 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
 	bool SetPathVisibility(bool bNewIsVisible);
 	virtual bool SetPathVisibility_Implementation(bool bNewIsVisible);
+
+	/* 
+	 * Return moving actor visibility
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool ToggleMovingActorVisibility();
+	virtual bool ToggleMovingActorVisibility_Implementation();
+	
+	/* 
+	 * Return moving actor visibility
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool SetMovingActorVisibility(bool bNewIsVisible);
+	virtual bool SetMovingActorVisibility_Implementation(bool bNewIsVisible);
+
+	/* 
+	 * Return danger zone visibility
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool ToggleDangerZoneVisibility();
+	virtual bool ToggleDangerZoneVisibility_Implementation();
+	
+	/* 
+	 * Return danger zone visibility
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool SetDangerZoneVisibility(bool bNewIsVisible);
+	virtual bool SetDangerZoneVisibility_Implementation(bool bNewIsVisible);
 	
 	/* 
 	 * Return is paused

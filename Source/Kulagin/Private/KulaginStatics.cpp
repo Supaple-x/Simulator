@@ -748,6 +748,20 @@ TArray<FMissionPointNative> UKulaginStatics::PointsToNativePoints(TArray<FMissio
 	return TempPoints;
 }
 
+void UKulaginStatics::AddMissionPointsOffset(UPARAM(ref) TArray<FMissionPoint> &Points, FVector Offset)
+{
+	for (FMissionPoint &CurrentPoint : Points)
+	{
+		AddMissionPointOffset(CurrentPoint, Offset);
+	}
+}
+
+void UKulaginStatics::AddMissionPointOffset(UPARAM(ref) FMissionPoint &Point, FVector Offset)
+{
+	const FVector TargetLoc = WGS84ToUE(Point, 0.f) + Offset;
+	UEToWGS84(Point, TargetLoc, 0.f);
+}
+
 double UKulaginStatics::GetValidDoubleFromString(FString Str)
 {
 	FString FormattedString;

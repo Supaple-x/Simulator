@@ -220,7 +220,30 @@ bool AMapperContainerBase::TogglePathVisibility_Implementation()
 	
 bool AMapperContainerBase::SetPathVisibility_Implementation(bool bNewIsVisible)
 {
-	return bNewIsVisible;
+	bIsPathVisible = bNewIsVisible;
+	return bIsPathVisible;
+}
+
+bool AMapperContainerBase::ToggleMovingActorVisibility_Implementation()
+{
+	return SetMovingActorVisibility(!bIsMovingActorVisible);
+}
+
+bool AMapperContainerBase::SetMovingActorVisibility_Implementation(bool bNewIsVisible)
+{
+	bIsMovingActorVisible = bNewIsVisible;
+	return bIsMovingActorVisible;
+}
+
+bool AMapperContainerBase::ToggleDangerZoneVisibility_Implementation()
+{
+	return SetDangerZoneVisibility(!bIsDangerZoneVisible);
+}
+
+bool AMapperContainerBase::SetDangerZoneVisibility_Implementation(bool bNewIsVisible)
+{
+	bIsDangerZoneVisible = bNewIsVisible;
+	return bIsDangerZoneVisible;
 }
 
 bool AMapperContainerBase::TogglePaused_Implementation()
@@ -230,7 +253,8 @@ bool AMapperContainerBase::TogglePaused_Implementation()
 
 bool AMapperContainerBase::SetPaused_Implementation(bool bNewIsPaused)
 {
-	return bNewIsPaused;
+	bIsPaused = bNewIsPaused;
+	return bIsPaused;
 }
 
 bool AMapperContainerBase::RemovePath_Implementation()

@@ -166,6 +166,14 @@ public:
 
 	static TArray<FMissionPointNative> PointsToNativePoints(TArray<FMissionPoint> PointsNative);
 
+	/** Offset in Unreal Unints */
+	UFUNCTION(BlueprintCallable)
+	static void AddMissionPointsOffset(UPARAM(ref) TArray<FMissionPoint> &Points, FVector Offset);
+
+	/** Offset in Unreal Unints */
+	UFUNCTION(BlueprintCallable)
+	static void AddMissionPointOffset(UPARAM(ref) FMissionPoint &Point, FVector Offset);
+
 	static double GetValidDoubleFromString(FString Str);
 
 	static FString GetValidStringFromDouble(double Val);
@@ -230,4 +238,12 @@ public:
 	static void UEToLogPoint(UPARAM(ref) FLogPoint &Point, FVector Loc, float StartAlt);
 
 	static void UEToWGS84(FVector Loc, double &Lat, double LatReference, double &Lon, double LonReference, float &Alt, float StartAlt);
+
+	/** Converts real life meters to Unreal Units */
+	UFUNCTION(BlueprintPure)
+	static float LifeToUU(const float LifeValue) { return LifeValue * Scale; };
+
+	/** Converts Unreal Units to real life meters */
+	UFUNCTION(BlueprintPure)
+	static float UUToLife(const float UUValue) { return UUValue / Scale; };
 };
