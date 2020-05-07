@@ -109,6 +109,14 @@ enum class EPointContainerType : uint8
 };
 
 UENUM(BlueprintType)
+enum class EDroneActorType : uint8
+{
+	DAT_Skeletal				UMETA(DisplayName = "Skeletal"),
+	DAT_Static					UMETA(DisplayName = "Static"),
+	DAT_Class					UMETA(DisplayName = "Class")
+};
+
+UENUM(BlueprintType)
 enum class ELevelType : uint8
 {
 	LT_Sandbox				UMETA(DisplayName = "Sandbox"),
@@ -389,6 +397,8 @@ struct FDroneData : public FTableRowBase
 {
 	GENERATED_BODY()
 
+	/** Drone actor type */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) EDroneActorType ActorType;
 	/** Drone skeletal mesh */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) USkeletalMesh* SkeletalMesh;
 	/** Drone static mesh */
@@ -401,7 +411,9 @@ struct FDroneData : public FTableRowBase
 	/** Max horizontal speed in m/s */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) float MaxSpeedHorizontal;
 
-	FDroneData() : SkeletalMesh(nullptr), StaticMesh(nullptr), Class(AActor::StaticClass()), MaxSpeedVertical(0.f), MaxSpeedHorizontal(0.f) {};
+	FDroneData() : ActorType(EDroneActorType::DAT_Skeletal), SkeletalMesh(nullptr), StaticMesh(nullptr), Class(nullptr), MaxSpeedVertical(0.f), MaxSpeedHorizontal(0.f) {};
+
+	bool IsValid() const;
 	
 };
 

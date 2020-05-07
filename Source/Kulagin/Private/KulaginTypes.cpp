@@ -226,3 +226,15 @@ void FMapTileInfo::GetWorldSize(float &SizeX, float &SizeY) const
 	SizeX = FMath::Abs(LocTopLeft.X - LocBottomRight.X);
 	SizeY = FMath::Abs(LocTopLeft.Y - LocBottomRight.Y);
 }
+
+bool FDroneData::IsValid() const
+{
+	// speeds check
+	switch (ActorType)
+	{
+	case EDroneActorType::DAT_Skeletal: return SkeletalMesh != nullptr;
+	case EDroneActorType::DAT_Static: return StaticMesh != nullptr;
+	case EDroneActorType::DAT_Class: return Class != nullptr && Class != AActor::StaticClass();
+	default: return false;
+	}
+}

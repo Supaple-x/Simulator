@@ -246,4 +246,7 @@ public:
 	/** Converts Unreal Units to real life meters */
 	UFUNCTION(BlueprintPure)
 	static float UUToLife(const float UUValue) { return UUValue / Scale; };
+
+	UFUNCTION(BlueprintPure)
+	static bool IsValidDroneData(const FDroneData Data) { return Data.IsValid(); };
 };
