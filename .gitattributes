@@ -9,3 +9,4 @@ Content/Meshes/Kopter_2.uasset filter=lfs diff=lfs merge=lfs -text
 Content/Meshes/OldScene/test.uasset filter=lfs diff=lfs merge=lfs -text
 Content/Meshes/Scene/test.uasset filter=lfs diff=lfs merge=lfs -text
 Content/Meshes/MapMeshes/IPU4/Maps/IPU/TXT/IPU_b2_BaseColor_upscaled_image_x4.uasset filter=lfs diff=lfs merge=lfs -text
+Content/IPU/Maps/IPU/TXT/IPU_b2_BaseColor_upscaled_image_x4.uasset filter=lfs diff=lfs merge=lfs -text
