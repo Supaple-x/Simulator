@@ -190,6 +190,7 @@ bool AMapperContainerBase::SetPointsColor_Implementation(FLinearColor NewColor)
 
 bool AMapperContainerBase::SetMovingActor_Implementation(float NewTime)
 {
+	if (bIsRised == false) RiseMovingActor();
 	return false;
 }
 
@@ -200,6 +201,7 @@ FVector AMapperContainerBase::GetLocationAtTime_Implementation(float TimeIn)
 
 bool AMapperContainerBase::StartMoving_Implementation()
 {
+	if (bIsRised == false) RiseMovingActor();
 	return false;
 }
 
@@ -254,6 +256,7 @@ bool AMapperContainerBase::TogglePaused_Implementation()
 bool AMapperContainerBase::SetPaused_Implementation(bool bNewIsPaused)
 {
 	bIsPaused = bNewIsPaused;
+	if (bIsPaused == false && bIsRised == false) RiseMovingActor();
 	return bIsPaused;
 }
 
@@ -268,4 +271,34 @@ TArray<AActor*> AMapperContainerBase::GetActorsIgnoreCrossing_Implementation() c
 	Temp.Append(PointActors);
 	Temp.Add(DroneActor);
 	return Temp;
+}
+
+bool AMapperContainerBase::IsTimeInDangerZone_Implementation(float InTime) const
+{
+	if (bIsPaused) return false;
+	for (const FDangerZone &CurrentZone : DangerZones)
+	{
+		if (CurrentZone.SecondsBegin <= InTime && InTime <= CurrentZone.SecondsOver)
+			return true;
+	}
+	return false;
+}
+
+bool AMapperContainerBase::DropMovingActor_Implementation()
+{
+	if (bIsRised == false)
+		return true;
+
+	bIsRised = false;
+	SetPaused(true);
+	return DroneActor && DroneActor->DropMovingActor();
+}
+
+bool AMapperContainerBase::RiseMovingActor_Implementation()
+{
+	if (bIsRised)
+		return true;
+
+	bIsRised = true;
+	return DroneActor && DroneActor->RiseMovingActor();
 }

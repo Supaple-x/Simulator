@@ -41,6 +41,9 @@ public:
 	bool bIsDangerZoneVisible = true;
 
 	UPROPERTY(BlueprintReadWrite)
+	bool bIsRised = true;
+
+	UPROPERTY(BlueprintReadWrite)
 	bool bIsPaused;
 
 	UPROPERTY(BlueprintReadWrite)
@@ -175,5 +178,17 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
 	TArray<AActor*> GetActorsIgnoreCrossing() const;
 	virtual TArray<AActor*> GetActorsIgnoreCrossing_Implementation() const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Mapper")
+	bool IsTimeInDangerZone(float InTime) const;
+	virtual bool IsTimeInDangerZone_Implementation(float InTime) const;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool DropMovingActor();
+	virtual bool DropMovingActor_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool RiseMovingActor();
+	virtual bool RiseMovingActor_Implementation();
 
 };

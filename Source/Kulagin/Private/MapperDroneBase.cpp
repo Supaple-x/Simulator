@@ -19,3 +19,15 @@ void AMapperDroneBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+bool AMapperDroneBase::DropMovingActor_Implementation()
+{
+	//
+	return false;
+}
+
+bool AMapperDroneBase::RiseMovingActor_Implementation()
+{
+	//
+	return false;
+}

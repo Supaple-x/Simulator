@@ -57,4 +57,8 @@ public:
 	AActor* GetSceneActor();
 	virtual AActor* GetSceneActor_Implementation();
 
+	/** Return containers with moving actors in any danger zone at given time */
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Mapper")
+	TArray<AMapperContainerBase*> FindDangerZonesAtTime(const float InTime);
+	virtual TArray<AMapperContainerBase*> FindDangerZonesAtTime_Implementation(const float InTime);
 };

@@ -52,3 +52,13 @@ AActor* AMapperGameMode::GetSceneActor_Implementation()
 	return nullptr;
 }
 
+TArray<AMapperContainerBase*> AMapperGameMode::FindDangerZonesAtTime_Implementation(const float InTime)
+{
+	TArray<AMapperContainerBase*> Temp;
+	for (AMapperContainerBase* CurrentContainer : PointContainers)
+	{
+		if (CurrentContainer && CurrentContainer->IsTimeInDangerZone(InTime))
+			Temp.Add(CurrentContainer);
+	}
+	return Temp;
+}

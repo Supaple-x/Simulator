@@ -25,6 +25,12 @@ public:
 
 public:
 
-	//
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool DropMovingActor();
+	virtual bool DropMovingActor_Implementation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool RiseMovingActor();
+	virtual bool RiseMovingActor_Implementation();
 
 };
