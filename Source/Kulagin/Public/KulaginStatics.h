@@ -249,4 +249,5 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static bool IsValidDroneData(const FDroneData Data) { return Data.IsValid(); };
+
 };

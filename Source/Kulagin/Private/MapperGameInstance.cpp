@@ -22,3 +22,8 @@ void UMapperGameInstance::Shutdown()
 	
 	//
 }
+
+//FName UMapperGameInstance::GetActualLevelName_Implementation()
+//{
+//	return LevelName;
+//}

@@ -64,7 +64,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FDangerZone> DangerZones;
 
-	/* In real life sentimeters */
+	/** In real life sentimeters */
 	UPROPERTY(BlueprintReadWrite)
 	float DangerZoneRadius = 300.f;
 

@@ -422,11 +422,19 @@ struct FMapperLevelData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	/** Lat/Lon for first and second points in WGS84 */
+	/*
+	 * Row name is level name in main menu
+	 * This Level Name is actual name for level to open 
+	 * May row name and this Level Name may be same
+	 */
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite) FName LevelName;
+	/** Start Point for simulation mode if map dont already have one */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite) FVector StartPoint;
+	/** For orientation. Lat/Lon for first and second points in WGS84 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FVector2D> LatLon;
-	/** Location for first and second points in unreal units */
+	/** For orientation. Location for first and second points in unreal units */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<FVector> Locations;
 
-	FMapperLevelData() : LatLon({ FVector2D::ZeroVector, FVector2D::ZeroVector }), Locations({ FVector::ZeroVector, FVector::ZeroVector }) {};
+	FMapperLevelData() : /*LevelName(NAME_None), */StartPoint(FVector::ZeroVector), LatLon({ FVector2D::ZeroVector, FVector2D::ZeroVector }), Locations({ FVector::ZeroVector, FVector::ZeroVector }) {};
 
 };

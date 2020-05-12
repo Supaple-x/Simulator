@@ -29,4 +29,9 @@ public:
 	UPROPERTY(Category = "Mapper", BlueprintReadWrite, EditDefaultsOnly)
 	FName DroneName;
 
+	/** GameMode is optional parameter, may be None */
+	//UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	//FName GetActualLevelName();
+	//virtual FName GetActualLevelName_Implementation();
+
 };
