@@ -2,6 +2,7 @@
 
 #include "MapperTileComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "KismetProceduralMeshLibrary.h"
 #include "KulaginStatics.h"
 #include "MapperGameMode.h"
 #include "KulaginAsyncHeighmapDownload.h"
@@ -15,6 +16,81 @@ UMapperTileComponent::UMapperTileComponent(const FObjectInitializer& ObjectIniti
 	PrimaryComponentTick.TickInterval = 0.25f;
 }
 
+// Procedural stuff begin
+
+void UMapperTileComponent::GenerateVertices()
+{
+	float UVSpacing = 1.0f / FMath::Max(Height - 1, Width - 1);
+
+	AMapperGameMode* GM = UKulaginStatics::GetMapperGameMode(this);
+	const float MinZ = GM ? GM->GetHeighmapMinZ() : 0.f;
+
+	for (int32 y = 0; y < Height; y++)
+	{
+		for (int32 x = 0; x < Width; x++)
+		{
+			Vertices.Add(FVector(-50.f + x * Spacing, -50.f + y * Spacing, MinZ));
+			Normals.Add(FVector(0.0f, 0.0f, 1.0f));
+			UVs.Add(FVector2D(x * UVSpacing, y * UVSpacing));
+			VertexColors.Add((x == 2 && y == 2) ? FLinearColor(1.0f, 0.0f, 0.0f, 0.0f) : FLinearColor(1.0f, 1.0f, 1.0f, 1.0f));
+			Tangents.Add(FProcMeshTangent(1.0f, 0.0f, 0.0f));
+		}
+	}
+}
+
+void UMapperTileComponent::GenerateTriangles()
+{
+	for (int32 y = 0; y < Height - 1; y++)
+	{
+		for (int32 x = 0; x < Width - 1; x++)
+		{
+			Triangles.Add(x + (y * Width));					//current vertex
+			Triangles.Add(x + (y * Width) + Width);			//current vertex + row
+			Triangles.Add(x + (y * Width) + Width + 1);		//current vertex + row + one right
+
+			Triangles.Add(x + (y * Width));					//current vertex
+			Triangles.Add(x + (y * Width) + Width + 1);		//current vertex + row + one right
+			Triangles.Add(x + (y * Width) + 1);				//current vertex + one right
+		}
+	}
+}
+
+void UMapperTileComponent::UpdateHeighmapVertices(UMapperHeighmap* Heighmap, const int32 IndexX, const int32 IndexY, const int32 IndexCount)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: UpdateHeighmapVertices"));
+
+	if (Heighmap == nullptr)
+		return;
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: UpdateHeighmapVertices: Heighmap VALID"));
+
+	for (int32 y = 0; y < Height; y++)
+	{
+		for (int32 x = 0; x < Width; x++)
+		{
+			const float PercentageY = float(y) / float(Height - 1);
+			const float PercentageX = float(x) / float(Width - 1);
+
+			const int32 HeighRealLife = Heighmap->GetHeigh(PercentageX, PercentageY, IndexX, IndexY, IndexCount);
+			const float HeighUU = UKulaginStatics::LifeToUU(HeighRealLife);
+
+			Vertices[y * Width + x].Z = HeighUU;
+
+			//UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: UpdateHeighmapVertices: HeighUU = %f"), HeighUU);
+		}
+	}
+
+	const float MinHeighUU = UKulaginStatics::LifeToUU(Heighmap->MinHeigh);
+
+	CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexColors, Tangents, false);
+	if (AMapperGameMode* GM = UKulaginStatics::GetMapperGameMode(this))
+	{
+		GM->UpdateHeighmapMinZ(MinHeighUU);
+	}
+}
+
+// Procedural stuff end
+
 void UMapperTileComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -25,12 +101,17 @@ void UMapperTileComponent::BeginPlay()
 	MaxZoomInfo = FMapTileInfo(LatLon, UKulaginStatics::MaxZoom);
 	MinZoomInfo = FMapTileInfo(LatLon, UKulaginStatics::MinZoom);
 
-	if (const AMapperGameMode* GM = UKulaginStatics::GetMapperGameMode(this))
+	if (AMapperGameMode* GM = UKulaginStatics::GetMapperGameMode(this))
 	{
+		//if (GM->TileMesh)
+		//	SetStaticMesh(GM->TileMesh);
+
+		GenerateVertices();
+		GenerateTriangles();
+		CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexColors, Tangents, false);
+
 		if (GM->TileMaterial)
 			SetMaterial(0, UMaterialInstanceDynamic::Create(GM->TileMaterial, nullptr));
-		if (GM->TileMesh)
-			SetStaticMesh(GM->TileMesh);
 	}
 
 	GetMapTileMinZoom();
@@ -49,7 +130,7 @@ void UMapperTileComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UMapperTileComponent::UpdateTile()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: UpdateTile"));
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: UpdateTile: BaseColorState = %i, HeighmapState = %i"), int32(BaseColorState), int32(HeighmapState));
 
 	if (BaseColorState == ETileImageState::TIS_None || HeighmapState == ETileImageState::TIS_None)
 	{
@@ -63,10 +144,13 @@ void UMapperTileComponent::UpdateTile()
 	{
 		SetComponentTickEnabled(false);
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: UpdateTile: BaseColorState = %i, HeighmapState = %i END"), int32(BaseColorState), int32(HeighmapState));
 }
 
 bool UMapperTileComponent::IsRounded()
 { 
+	//return true;
 	if (bRounded)
 		return true;
 	TArray<FIntPoint> NearTiles = { FIntPoint(-1,0),FIntPoint(0,-1) ,FIntPoint(1,0) ,FIntPoint(0,1) };
@@ -83,6 +167,7 @@ bool UMapperTileComponent::IsRounded()
 
 void UMapperTileComponent::RoundTile()
 {
+	//return;
 	TArray<UMapperTileComponent**> TileReferences;// = { LeftTile, TopTile, RightTile, BottomTile };
 	TileReferences.Add(&LeftTile);
 	TileReferences.Add(&TopTile);
@@ -234,9 +319,17 @@ void UMapperTileComponent::SetHeighmapMinZoom(const FMapTileImage &TileImage)
 	if (TileImage.Heighmap == nullptr)
 		return;
 
-	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: SetHeighmapMinZoom: BaseColor VALID"));
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: SetHeighmapMinZoom: Heighmap VALID"));
 
-	if (UMaterialInstanceDynamic* CurrentInstance = Cast<UMaterialInstanceDynamic>(GetMaterial(0)))
+	int32 IndexX, IndexY;
+	UKulaginStatics::GetMinZoomIndex(TileImage.Info, GetComponentLocation(), IndexX, IndexY);
+	const int32 IndexCount = FMath::Pow(2.f, UKulaginStatics::MaxZoom - UKulaginStatics::MinZoom);
+
+	UpdateHeighmapVertices(TileImage.Heighmap, IndexX, IndexY, IndexCount);
+
+	HeighmapState = ETileImageState::TIS_MinZoom;
+
+	/*if (UMaterialInstanceDynamic* CurrentInstance = Cast<UMaterialInstanceDynamic>(GetMaterial(0)))
 	{
 		int32 IndexX, IndexY;
 		UKulaginStatics::GetMinZoomIndex(TileImage.Info, GetComponentLocation(), IndexX, IndexY);
@@ -248,23 +341,23 @@ void UMapperTileComponent::SetHeighmapMinZoom(const FMapTileImage &TileImage)
 		UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: SetHeighmapMinZoom: instance VALID, indexX = %i, indexY = %i, loc = %s"), IndexX, IndexY, *GetComponentLocation().ToString());
 
 		HeighmapState = ETileImageState::TIS_MinZoom;
-	}
+	}*/
 }
 
 void UMapperTileComponent::GetMapTileMaxZoom()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: GetMapTileMaxZoom"));
 
-	if (BaseColorState >= ETileImageState::TIS_MaxZoom && HeighmapState >= ETileImageState::TIS_MaxZoom)
+	if (BaseColorState >= ETileImageState::TIS_MaxZoom)// && HeighmapState >= ETileImageState::TIS_MaxZoom)
 		return;
 
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: GetMapTileMaxZoom: <= TIS_MaxZoom"));
 
 	BaseColorState = ETileImageState::TIS_MaxZoom;
-	HeighmapState = ETileImageState::TIS_MaxZoom;
+	//HeighmapState = ETileImageState::TIS_MaxZoom;
 
 	LoadBaseColorMaxZoom();
-	LoadHeighmapMaxZoom();
+	//LoadHeighmapMaxZoom();
 }
 
 void UMapperTileComponent::LoadBaseColorMaxZoom()
@@ -278,6 +371,7 @@ void UMapperTileComponent::LoadBaseColorMaxZoom()
 
 void UMapperTileComponent::LoadHeighmapMaxZoom()
 {
+	return;
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: LoadHeighmapMaxZoom"));
 
 	//GetMapTileMinZoom();
@@ -357,9 +451,10 @@ void UMapperTileComponent::OnMapTileMinZoomFail(UTexture2DDynamic* Texture)
 	LoadBaseColorMinZoom();
 }
 
-void UMapperTileComponent::OnHeighmapMaxZoomSuccess(UTexture* Texture)
+void UMapperTileComponent::OnHeighmapMaxZoomSuccess(UMapperHeighmap* Heighmap)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: OnHeighmapMaxZoomSuccess"));
+	return;
+	/*UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: OnHeighmapMaxZoomSuccess"));
 
 	if (Texture == nullptr)
 		OnHeighmapMaxZoomFail(nullptr);
@@ -372,17 +467,18 @@ void UMapperTileComponent::OnHeighmapMaxZoomSuccess(UTexture* Texture)
 		CurrentInstance->SetScalarParameterValue("Zoom", float(UKulaginStatics::MaxZoom));
 		CurrentInstance->SetScalarParameterValue("IndexX", 0.f);
 		CurrentInstance->SetScalarParameterValue("IndexY", 0.f);
-	}
+	}*/
 }
 
-void UMapperTileComponent::OnHeighmapMaxZoomFail(UTexture* Texture)
+void UMapperTileComponent::OnHeighmapMaxZoomFail(UMapperHeighmap* Heighmap)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: OnHeighmapMaxZoomFail"));
+	return;
+	/*UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: OnHeighmapMaxZoomFail"));
 
-	LoadHeighmapMaxZoom();
+	LoadHeighmapMaxZoom();*/
 }
 
-void UMapperTileComponent::OnHeighmapMinZoomSuccess(UTexture* Texture)
+void UMapperTileComponent::OnHeighmapMinZoomSuccess(UMapperHeighmap* Heighmap)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: OnHeighmapMinZoomSuccess"));
 
@@ -394,12 +490,12 @@ void UMapperTileComponent::OnHeighmapMinZoomSuccess(UTexture* Texture)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: OnHeighmapMinZoomSuccess: TileImage VALID"));
 
-		TileImage->Heighmap = Texture;
-		SetBaseColorMinZoom(*TileImage);
+		TileImage->Heighmap = Heighmap;
+		SetHeighmapMinZoom(*TileImage);
 	}
 }
 
-void UMapperTileComponent::OnHeighmapMinZoomFail(UTexture* Texture)
+void UMapperTileComponent::OnHeighmapMinZoomFail(UMapperHeighmap* Heighmap)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: OnHeighmapMinZoomFail"));
 

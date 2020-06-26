@@ -62,3 +62,40 @@ TArray<AMapperContainerBase*> AMapperGameMode::FindDangerZonesAtTime_Implementat
 	}
 	return Temp;
 }
+
+float AMapperGameMode::GetHeighmapMinZ() const
+{
+	return HeighmapMinZ;
+}
+
+void AMapperGameMode::UpdateHeighmapMinZ(const float MinZ)
+{
+	if (MinZ >= HeighmapMinZ)
+		return;
+	
+	HeighmapMinZ = MinZ;
+
+	AActor* SceneActor = GetSceneActor();
+
+	if (SceneActor == nullptr)
+		return;
+
+	FVector Loc = SceneActor->GetActorLocation();
+	Loc.Z = HeighmapMinZ * -1.f;
+
+	SceneActor->SetActorLocation(Loc);
+}
+
+void AMapperGameMode::ResetHeighmapMinZ()
+{
+	HeighmapMinZ = 999999.f;
+
+	AActor* SceneActor = GetSceneActor();
+
+	if (SceneActor == nullptr)
+		return;
+
+	FVector Loc = SceneActor->GetActorLocation();
+	Loc.Z = 0.f;
+	SceneActor->SetActorLocation(Loc);
+}

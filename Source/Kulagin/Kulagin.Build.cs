@@ -18,6 +18,7 @@ public class Kulagin : ModuleRules
             "Http",
             "Json",
             "JsonUtilities",
+            "ProceduralMeshComponent",
             "AirSim"
         });
 

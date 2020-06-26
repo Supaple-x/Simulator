@@ -61,4 +61,19 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Mapper")
 	TArray<AMapperContainerBase*> FindDangerZonesAtTime(const float InTime);
 	virtual TArray<AMapperContainerBase*> FindDangerZonesAtTime_Implementation(const float InTime);
+
+	UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly)
+	float HeighmapMinZ = 999999.f;
+
+	UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly)
+	float HeighmapMaxZ = 0.f;
+
+	UFUNCTION(BlueprintCallable, Category = "Mapper")
+	float GetHeighmapMinZ() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Mapper")
+	void UpdateHeighmapMinZ(const float MinZ);
+
+	UFUNCTION(BlueprintCallable, Category = "Mapper")
+	void ResetHeighmapMinZ();
 };

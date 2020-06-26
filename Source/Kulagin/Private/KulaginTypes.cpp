@@ -227,6 +227,63 @@ void FMapTileInfo::GetWorldSize(float &SizeX, float &SizeY) const
 	SizeY = FMath::Abs(LocTopLeft.Y - LocBottomRight.Y);
 }
 
+UMapperHeighmap::UMapperHeighmap()
+{
+	//
+}
+
+void UMapperHeighmap::InitData(const int32 SizeXIn, const int32 SizeYIn)
+{
+	SizeX = SizeXIn;
+	SizeY = SizeYIn;
+
+	Data.Empty();
+	Data.Init(0, SizeX * SizeY);
+}
+
+float UMapperHeighmap::GetHeigh(const float PercentageX, const float PercentageY, const int32 IndexX, const int32 IndexY, const int32 IndexCount)
+{
+	if (Data.Num() < (IndexCount * IndexCount))
+		return 0.f;
+
+	const float ShiftX = float(IndexX) / float(IndexCount);
+	const float ShiftY = float(IndexY) / float(IndexCount);
+
+	const float LocalPercentageX = ShiftX + PercentageX / float(IndexCount);
+	const float LocalPercentageY = ShiftY + PercentageY / float(IndexCount);
+
+	const float LocalX = float(SizeX - 1) * LocalPercentageX;
+	const float LocalY = float(SizeY - 1) * LocalPercentageY;
+
+	const float ModX = FMath::Fmod(LocalX, 1.f);
+	const float ModY = FMath::Fmod(LocalY, 1.f);
+
+	const int32 LocalFloorX = FMath::FloorToInt(LocalX);
+	const int32 LocalFloorY = FMath::FloorToInt(LocalY);
+
+	const int32 LocalCeilX = FMath::CeilToInt(LocalX);
+	const int32 LocalCeilY = FMath::CeilToInt(LocalY);
+
+	//UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: FloorX = %i, FloorY =  %i, CeilX = %i, CeilY = %i"), LocalFloorX, LocalFloorY, LocalCeilX, LocalCeilY);
+	//UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: LocalPercentageX = %f, LocalPercentageY = %f, ModX = %f, ModY =  %f"), LocalPercentageX, LocalPercentageY, ModX, ModY);
+	//UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: PercentageX = %f, PercentageY = %f"), PercentageX, PercentageY);
+
+	//FMath::FloorToInt
+	//FMath::CeilToInt
+
+	const float TopLeft = Data[LocalFloorY * SizeX + LocalFloorX];
+	const float TopRight = Data[LocalFloorY * SizeX + LocalCeilX];
+	const float BotLeft = Data[LocalCeilY * SizeX + LocalFloorX];
+	const float BotRight = Data[LocalCeilY * SizeX + LocalCeilX];
+
+	const float TopLerp = FMath::Lerp(TopLeft, TopRight, ModX);
+	const float RightLerp = FMath::Lerp(TopRight, BotRight, ModY);
+	const float BotLerp = FMath::Lerp(BotLeft, BotRight, ModX);
+	const float LeftLerp = FMath::Lerp(TopLeft, BotLeft, ModY);
+
+	return (TopLerp + RightLerp + BotLerp + LeftLerp) * 0.25f;
+}
+
 bool FDroneData::IsValid() const
 {
 	// speeds check
@@ -238,3 +295,4 @@ bool FDroneData::IsValid() const
 	default: return false;
 	}
 }
+

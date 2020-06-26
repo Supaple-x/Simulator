@@ -398,8 +398,8 @@ void UKulaginStatics::SpawnDefaultTiles(USceneComponent* Parent, FLatLon TopLeft
 	const FIntPoint TileBottomRight = InfoBottomRight.GetGoogleTile();
 	const FIntPoint TileCenter = InfoCenter.GetGoogleTile();
 
-	const int32 TilesCountX = FMath::Abs(TileTopLeft.X - TileBottomRight.X) + 8;
-	const int32 TilesCountY = FMath::Abs(TileTopLeft.Y - TileBottomRight.Y) + 8;
+	const int32 TilesCountX = FMath::Clamp(FMath::Abs(TileTopLeft.X - TileBottomRight.X), 8, 16);
+	const int32 TilesCountY = FMath::Clamp(FMath::Abs(TileTopLeft.Y - TileBottomRight.Y), 8, 16);
 
 	const int32 XCenter = TileCenter.X;
 	const int32 YCenter = TileCenter.Y;

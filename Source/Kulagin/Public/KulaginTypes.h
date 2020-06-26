@@ -330,6 +330,30 @@ struct FMapTileInfo
 	}
 };
 
+UCLASS(BlueprintType)
+class UMapperHeighmap : public UObject
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadWrite) int32 SizeX;
+
+	UPROPERTY(BlueprintReadWrite) int32 SizeY;
+
+	UPROPERTY(BlueprintReadWrite) TArray<int32> Data;
+
+	UPROPERTY(BlueprintReadWrite) int32 MinHeigh;
+
+	UFUNCTION(BlueprintCallable)
+	void InitData(const int32 SizeXIn, const int32 SizeYIn);
+
+	UFUNCTION(BlueprintPure)
+	float GetHeigh(const float PercentageX, const float PercentageY, const int32 IndexX, const int32 IndexY, const int32 IndexCount);
+
+	UMapperHeighmap();
+};
+
 USTRUCT(BlueprintType)
 struct FMapTileImage
 {
@@ -337,13 +361,12 @@ struct FMapTileImage
 
 	UPROPERTY(BlueprintReadWrite) FMapTileInfo Info;
 	UPROPERTY(BlueprintReadWrite) UTexture* BaseColor;
-	UPROPERTY(BlueprintReadWrite) UTexture* Heighmap;
+	UPROPERTY(BlueprintReadWrite) UMapperHeighmap* Heighmap;
 
-	FMapTileImage(const FMapTileInfo& InfoIn, UTexture2DDynamic* BaseColorIn = nullptr, UTexture2DDynamic* HeighmapIn = nullptr)
+	FMapTileImage(const FMapTileInfo& InfoIn, UTexture2DDynamic* BaseColorIn = nullptr, UMapperHeighmap* HeighmapIn = nullptr)
 	: Info(InfoIn), BaseColor(BaseColorIn), Heighmap(HeighmapIn) {};
 
 	FMapTileImage() : FMapTileImage(FMapTileInfo(), nullptr, nullptr) {};
-
 };
 
 USTRUCT(BlueprintType)

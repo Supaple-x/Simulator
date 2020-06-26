@@ -13,7 +13,7 @@
 
 class UTexture2DDynamic;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHeighmapDelegate, UTexture*, Texture);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FHeighmapDelegate, UMapperHeighmap*, Heighmap);
 
 UCLASS()
 class KULAGIN_API UMapperLoadHeighmap : public UBlueprintAsyncActionBase
@@ -60,10 +60,10 @@ private:
 	void OnFileFail(UTexture2DDynamic* Texture);
 
 	UFUNCTION()
-	void OnWebSuccess(UTexture* Texture);
+	void OnWebSuccess(UMapperHeighmap* Heighmap);
 
 	UFUNCTION()
-	void OnWebFail(UTexture* Texture);
+	void OnWebFail(UMapperHeighmap* Heighmap);
 
 	void OnRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful);
 };

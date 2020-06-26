@@ -62,7 +62,7 @@ void UMapperLoadHeighmap::Start()
 
 void UMapperLoadHeighmap::OnFileSuccess(UTexture2DDynamic* Texture)
 {
-	OnSuccess.Broadcast(Texture);
+	OnSuccess.Broadcast(nullptr);
 	RemoveFromRoot();
 }
 
@@ -94,14 +94,14 @@ void UMapperLoadHeighmap::OnFileFail(UTexture2DDynamic* Texture)
 	Request->ProcessRequest();
 }
 
-void UMapperLoadHeighmap::OnWebSuccess(UTexture* Texture)
+void UMapperLoadHeighmap::OnWebSuccess(UMapperHeighmap* Heighmap)
 {
 	// TODO Save texture to file in [Saved]/MapTileCache or etc
-	OnSuccess.Broadcast(Texture);
+	OnSuccess.Broadcast(Heighmap);
 	RemoveFromRoot();
 }
 
-void UMapperLoadHeighmap::OnWebFail(UTexture* Texture)
+void UMapperLoadHeighmap::OnWebFail(UMapperHeighmap* Heighmap)
 {
 	OnFail.Broadcast(nullptr);
 	RemoveFromRoot();
@@ -109,11 +109,10 @@ void UMapperLoadHeighmap::OnWebFail(UTexture* Texture)
 
 void UMapperLoadHeighmap::OnRequestComplete(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	OnWebFail(nullptr);
-	return;
-
 	if (bWasSuccessful == false || Response.IsValid() == false)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperLoadHeighmap: OnRequestComplete: FAILED"));
+
 		OnWebFail(nullptr);
 		return;
 	}
@@ -148,7 +147,7 @@ void UMapperLoadHeighmap::OnRequestComplete(FHttpRequestPtr Request, FHttpRespon
 
 	// meter = R + G
 
-	const int32 SizeMP = 4;
+	const int32 SizeMP = 1;
 
 	if (BaseCarpet.IsValidIndex(0) == false || BaseCarpet[0].IsValid() == false)
 	{
@@ -163,12 +162,17 @@ void UMapperLoadHeighmap::OnRequestComplete(FHttpRequestPtr Request, FHttpRespon
 		OnWebFail(nullptr);
 		return;
 	}
-	TArray<FColor> ImageData;
-	ImageData.Init(FColor::Blue, SizeX * SizeY);
+
+	UMapperHeighmap* Heighmap = NewObject<UMapperHeighmap>();
+	Heighmap->InitData(SizeX, SizeY);
+
+	TArray<int32> &ImageData = Heighmap->Data;
+	int32 &MinHeigh = Heighmap->MinHeigh;
+	MinHeigh = 99999;
 
 	UE_LOG(LogTemp, Error, TEXT("Kulagin: MapperLoadHeighmap: OnRequestComplete: SizeX = %i, SizeY = %i, ImageData.Num = %i"), SizeX, SizeY, ImageData.Num());
 
-	int32 IndexY = 0;
+	int32 IndexY = SizeY - 1;
 	for (TSharedPtr<FJsonValue>& CarpetLine : BaseCarpet)
 	{
 		if (CarpetLine.IsValid() == false) continue;
@@ -178,20 +182,21 @@ void UMapperLoadHeighmap::OnRequestComplete(FHttpRequestPtr Request, FHttpRespon
 		{
 			if (CarpetValue.IsValid() == false) continue;
 			const int32 Heigh = CarpetValue->AsNumber();
+			if (Heigh < MinHeigh) MinHeigh = Heigh;
 			//const uint8 ColorR = FMath::Clamp(Heigh, 0, 255);
-			const uint8 ColorR = FMath::Clamp<int32>(double(Heigh - Min) * HeighMP, 0, 255);
-			const uint8 ColorG = FMath::Clamp(Heigh - 255, 0, 255);
-			const FColor CurrentColor(ColorR, ColorG, 0, 0);
+			//const uint8 ColorR = FMath::Clamp<int32>(double(Heigh - Min) * HeighMP, 0, 255);
+			//const uint8 ColorG = FMath::Clamp(Heigh - 255, 0, 255);
+			const int32 CurrentColor = Heigh;
 			for (int32 i = 0; i < SizeMP; i++)
 				for (int32 j = 0; j < SizeMP; j++)
 				{
-					UE_LOG(LogTemp, Error, TEXT("Kulagin: MapperLoadHeighmap: OnRequestComplete: IndexY = %i, i = %i, IndexX = %i, j = %i"), IndexY, i, IndexX, j);
+					//UE_LOG(LogTemp, Error, TEXT("Kulagin: MapperLoadHeighmap: OnRequestComplete: IndexY = %i, i = %i, IndexX = %i, j = %i"), IndexY, i, IndexX, j);
 					ImageData[(IndexY * SizeMP + i) * SizeX + (IndexX * SizeMP + j)] = CurrentColor;
 				}
-			UE_LOG(LogTemp, Error, TEXT("Kulagin: MapperLoadHeighmap: OnRequestComplete: Heigh: %i, ColorR: %i, ColorG: %i"), Heigh, ColorR, ColorG);
+			//UE_LOG(LogTemp, Error, TEXT("Kulagin: MapperLoadHeighmap: OnRequestComplete: Heigh: %i"), Heigh);
 			IndexX++;
 		}
-		IndexY++;
+		IndexY--;
 	}
 
 	FCreateTexture2DParameters Params;
@@ -203,7 +208,7 @@ void UMapperLoadHeighmap::OnRequestComplete(FHttpRequestPtr Request, FHttpRespon
 	static int32 HeighmapNumber = 0;
 	const FString TextureName = L"Heighmap_" + FilePath + L"_Num_" + FString::FromInt(HeighmapNumber++);
 
-	UTexture2D* Heighmap = FImageUtils::CreateTexture2D(SizeX, SizeY, ImageData, this, TextureName, RF_NoFlags, Params);
+	//UTexture2D* Heighmap = FImageUtils::CreateTexture2D(SizeX, SizeY, ImageData, this, TextureName, RF_NoFlags, Params);
 
 	OnWebSuccess(Heighmap);
 }
