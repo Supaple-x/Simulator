@@ -82,7 +82,7 @@ void UMapperTileComponent::UpdateHeighmapVertices(UMapperHeighmap* Heighmap, con
 
 	const float MinHeighUU = UKulaginStatics::LifeToUU(Heighmap->MinHeigh);
 
-	CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexColors, Tangents, false);
+	CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexColors, Tangents, true);
 	if (AMapperGameMode* GM = UKulaginStatics::GetMapperGameMode(this))
 	{
 		GM->UpdateHeighmapMinZ(MinHeighUU);
@@ -108,7 +108,7 @@ void UMapperTileComponent::BeginPlay()
 
 		GenerateVertices();
 		GenerateTriangles();
-		CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexColors, Tangents, false);
+		CreateMeshSection_LinearColor(0, Vertices, Triangles, Normals, UVs, VertexColors, Tangents, true);
 
 		if (GM->TileMaterial)
 			SetMaterial(0, UMaterialInstanceDynamic::Create(GM->TileMaterial, nullptr));

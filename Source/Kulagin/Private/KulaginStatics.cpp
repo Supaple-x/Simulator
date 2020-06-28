@@ -528,11 +528,15 @@ FLogPointList UKulaginStatics::GetLogPointsFromFile(FBinaryFilePath Path)
 	bool Ready = false;
 	while (getline(FileStream, s) && i < 50000)
 	{
-		if (s.find(";sau") != std::string::npos)
+		if (s.find(";sau") != std::string::npos || s.length() <= 1)
 			continue;
 		i++;
 
 		// Parse begin
+
+		//UE_LOG(LogTemp, Warning, TEXT("Kulagin: Statics: GetLogPointsFromFile: s = '%s'"), *FString(s.c_str()));
+
+		s += " ";
 
 		TArray<std::string> CurrentRow;
 		CurrentRow.Init("", 7);
@@ -547,6 +551,11 @@ FLogPointList UKulaginStatics::GetLogPointsFromFile(FBinaryFilePath Path)
 				if (bFirstSpace)
 				{
 					bFirstSpace = false;
+					if (CurrentRow[CeilIndex].length() <= 0)
+					{
+						//UE_LOG(LogTemp, Warning, TEXT("Kulagin: Statics: GetLogPointsFromFile: CurrentRow[CeilIndex].length() <= 0"));
+						break;
+					}
 					CeilIndex++;
 				}
 			}
@@ -556,10 +565,11 @@ FLogPointList UKulaginStatics::GetLogPointsFromFile(FBinaryFilePath Path)
 				CurrentRow[CeilIndex] += c;
 			}
 		}
-		for (int32 j = 0; j < 7; j++)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Kulagin: Statics: GetLogPointsFromFile: j = %i, Ceil = %s"), j, *FString(CurrentRow[j].c_str()));
-		}
+		if (CeilIndex < 7) continue;
+		//for (int32 j = 0; j < 7; j++)
+		//{
+		//	UE_LOG(LogTemp, Warning, TEXT("Kulagin: Statics: GetLogPointsFromFile: j = %i, Ceil = '%s'"), j, *FString(CurrentRow[j].c_str()));
+		//}
 
 		const std::string StringHours = CurrentRow[0].substr(0, 2);
 		const std::string StringMinutes = CurrentRow[0].substr(3, 2);
