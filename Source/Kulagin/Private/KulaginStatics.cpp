@@ -532,17 +532,58 @@ FLogPointList UKulaginStatics::GetLogPointsFromFile(FBinaryFilePath Path)
 			continue;
 		i++;
 
+		// Parse begin
+
+		TArray<std::string> CurrentRow;
+		CurrentRow.Init("", 7);
+
+		int32 CeilIndex = 0;
+		bool bFirstSpace = false;
+		for (const char c : s)
+		{
+			if (CeilIndex >= 7) break;
+			if (c == ' ' || c == '\t')
+			{
+				if (bFirstSpace)
+				{
+					bFirstSpace = false;
+					CeilIndex++;
+				}
+			}
+			else
+			{
+				bFirstSpace = true;
+				CurrentRow[CeilIndex] += c;
+			}
+		}
+		for (int32 j = 0; j < 7; j++)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Kulagin: Statics: GetLogPointsFromFile: j = %i, Ceil = %s"), j, *FString(CurrentRow[j].c_str()));
+		}
+
+		const std::string StringHours = CurrentRow[0].substr(0, 2);
+		const std::string StringMinutes = CurrentRow[0].substr(3, 2);
+		const std::string StringSeconds = CurrentRow[0].substr(6, 6);
+
+		const std::string StringLat = CurrentRow[1].substr(0, 2) + '.' + CurrentRow[1].substr(3, 2) + CurrentRow[1].substr(6, 2) + CurrentRow[1].substr(9, 2);
+		const std::string StringLon = CurrentRow[2].substr(0, 2) + '.' + CurrentRow[2].substr(3, 2) + CurrentRow[2].substr(6, 2) + CurrentRow[2].substr(9, 2);
+
+		// Parse end
+
 		// 00:00:00.000	45�13'51.1209"N	38�19'19.7438"E	18,494	-0,715	-1,714	328,812
 		// 012345
 
-		const std::string StringHours = s.substr(0, 2);
-		const std::string StringMinutes = s.substr(3, 2);
-		const std::string StringSeconds = s.substr(6, 6);
-		const std::string StringLat = s.substr(13, 2) + '.' + s.substr(16, 2) + s.substr(19, 2) + s.substr(22, 4);
-		const std::string StringLon = s.substr(29, 2) + '.' + s.substr(32, 2) + s.substr(35, 2) + s.substr(38, 4);
-		const std::string Remain = s.substr(45, s.length() - 45);
-		std::string StringAlt, StringRoll, StringPitch, StringYaw;
-		int ParseIndex = 1;
+		//const std::string StringHours = s.substr(0, 2);
+		//const std::string StringMinutes = s.substr(3, 2);
+		//const std::string StringSeconds = s.substr(6, 6);
+		//const std::string StringLat = s.substr(13, 2) + '.' + s.substr(16, 2) + s.substr(19, 2) + s.substr(22, 4);
+		//const std::string StringLon = s.substr(29, 2) + '.' + s.substr(32, 2) + s.substr(35, 2) + s.substr(38, 4);
+		//const std::string Remain = s.substr(45, s.length() - 45);
+		std::string StringAlt = CurrentRow[3];
+		std::string StringRoll = CurrentRow[4];
+		std::string StringPitch = CurrentRow[5];
+		std::string StringYaw = CurrentRow[6];
+		/*int ParseIndex = 1;
 		for (const char c : Remain)
 		{
 			std::string *CurrentString = &StringAlt;
@@ -557,7 +598,7 @@ FLogPointList UKulaginStatics::GetLogPointsFromFile(FBinaryFilePath Path)
 				(*CurrentString) += c;
 			else
 				ParseIndex++;
-		}
+		}*/
 
 		const double Hours = stod(StringHours);
 		const double Minutes = stod(StringMinutes);
