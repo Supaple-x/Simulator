@@ -112,6 +112,11 @@ void UMapperTileComponent::BeginPlay()
 
 		if (GM->TileMaterial)
 			SetMaterial(0, UMaterialInstanceDynamic::Create(GM->TileMaterial, nullptr));
+
+#if WITH_EDITOR
+		BaseColorState = GM->BaseColorStateInit;
+		HeighmapState = GM->HeighmapStateInit;
+#endif
 	}
 
 	GetMapTileMinZoom();

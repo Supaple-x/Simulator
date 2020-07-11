@@ -76,4 +76,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Mapper")
 	void ResetHeighmapMinZ();
+
+#if WITH_EDITORONLY_DATA 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	ETileImageState BaseColorStateInit;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	ETileImageState HeighmapStateInit;
+#endif
 };
