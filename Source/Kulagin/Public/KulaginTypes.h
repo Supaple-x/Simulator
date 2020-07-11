@@ -52,6 +52,20 @@ struct FMissionPointNative
 	FMissionPointNative(struct FMissionPoint Point);
 };
 
+struct FPlaneMissionPointNative
+{
+	double   Lat;
+	double   Lon;
+	float    Alt;
+	float	 Time;
+
+	int32 GetSize() const;
+
+	FPlaneMissionPointNative();
+
+	FPlaneMissionPointNative(struct FPlaneMissionPoint Point);
+};
+
 UENUM(BlueprintType)
 enum class ESceneType : uint8
 {
@@ -224,6 +238,20 @@ struct FMissionPoint
 };
 
 USTRUCT(BlueprintType)
+struct FPlaneMissionPoint
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)	FLatLon  LatLon;
+	UPROPERTY(BlueprintReadWrite)	float    Alt;
+	UPROPERTY(BlueprintReadWrite)	float    Time;
+
+	FPlaneMissionPoint();
+
+	FPlaneMissionPoint(FPlaneMissionPointNative NativePoint);
+};
+
+USTRUCT(BlueprintType)
 struct FBinaryFilePath
 {
 	GENERATED_BODY()
@@ -383,6 +411,22 @@ struct FMissionPointList
 		: FilePath(FilePathIn), Points(PointsIn), TopLeft(TopLeftIn), BottomRight(BottomRightIn) {};
 
 	FMissionPointList() : FilePath(), Points(), TopLeft(), BottomRight() {};
+};
+
+USTRUCT(BlueprintType)
+struct FPlaneMissionPointList
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite) FBinaryFilePath FilePath;
+	UPROPERTY(BlueprintReadWrite) TArray<FPlaneMissionPoint> Points;
+	UPROPERTY(BlueprintReadWrite) FLatLon TopLeft;
+	UPROPERTY(BlueprintReadWrite) FLatLon BottomRight;
+
+	FPlaneMissionPointList(FBinaryFilePath FilePathIn, TArray<FPlaneMissionPoint> PointsIn, FLatLon TopLeftIn, FLatLon BottomRightIn)
+		: FilePath(FilePathIn), Points(PointsIn), TopLeft(TopLeftIn), BottomRight(BottomRightIn) {};
+
+	FPlaneMissionPointList() : FilePath(), Points(), TopLeft(), BottomRight() {};
 };
 
 USTRUCT(BlueprintType)
