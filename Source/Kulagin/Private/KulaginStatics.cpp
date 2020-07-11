@@ -703,12 +703,86 @@ TArray<FMissionPointNative> UKulaginStatics::GetPointsNativeFromFile(const TCHAR
 		FileStream.read((char*)&BlankPoint.poiPitch, sizeof(BlankPoint.poiPitch));
 		FileStream.read((char*)&BlankPoint.poiRoll, sizeof(BlankPoint.poiRoll));
 		FileStream.read((char*)&BlankPoint.type, sizeof(BlankPoint.type));
-		Points.Add(BlankPoint);
+
 		MaxLat = FMath::Max<double>(MaxLat, BlankPoint.targetLat);
 		MaxLon = FMath::Max<double>(MaxLon, BlankPoint.targetLon);
 		MinLat = FMath::Min<double>(MinLat, BlankPoint.targetLat);
 		MinLon = FMath::Min<double>(MinLon, BlankPoint.targetLon);
+
+		Points.Add(BlankPoint);
 	}
+
+	FileStream.close();
+
+	TopLeft.Lat = MaxLat;
+	TopLeft.Lon = MinLon;
+
+	BottomRight.Lat = MinLat;
+	BottomRight.Lon = MaxLon;
+
+	return Points;
+}
+
+FPlaneMissionPointList UKulaginStatics::GetPlanePointsFromFile(FBinaryFilePath Path)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetPlanePointsFromFile: Path = %s"), *Path.GetFullPath());
+
+	const FString FullPath = Path.GetFullPath();
+	const TCHAR* WideNativePath = *FullPath;
+	// const char* NativePath = TCHAR_TO_ANSI(WideNativePath);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetPlanePointsFromFile: Native Path via FString = %s"), *FString(WideNativePath));
+
+	FLatLon TopLeft, BottomRight;
+	TArray<FPlaneMissionPointNative> PointsNative = GetPlanePointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
+
+	return FPlaneMissionPointList(Path, PlaneNativePointsToPoints(PointsNative), TopLeft, BottomRight);
+}
+
+TArray<FPlaneMissionPointNative> UKulaginStatics::GetPlanePointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight)
+{
+	std::fstream FileStream;
+
+	FileStream.open(Path, std::fstream::in | std::fstream::binary);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetPlanePointsNativeFromFile: FileStream %s"), FileStream.is_open() ? *FString("OPENED") : *FString("CLOSED"));
+
+	if (FileStream.is_open() == false)
+		return {};
+
+	FileStream.seekg(0, FileStream.end);
+	int32 Length = FileStream.tellg();
+	FileStream.seekg(0, FileStream.beg);
+
+	FPlaneMissionPointNative BlankPoint;
+
+	int32 PointsCount = Length / BlankPoint.GetSize();
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetPlanePointsNativeFromFile: PointsCount = %i"), PointsCount);
+
+	if (PointsCount <= 0)
+		return {};
+
+	TArray<FPlaneMissionPointNative> Points;
+
+	double MaxLat = -95., MaxLon = -185., MinLat = 95., MinLon = 185.;
+
+	for (int32 i = 0; i < PointsCount; i++)
+	{
+		FileStream.read((char*)&BlankPoint.Lat, sizeof(BlankPoint.Lat));
+		FileStream.read((char*)&BlankPoint.Lon, sizeof(BlankPoint.Lon));
+		FileStream.read((char*)&BlankPoint.Alt, sizeof(BlankPoint.Alt));
+		FileStream.read((char*)&BlankPoint.Time, sizeof(BlankPoint.Time));
+		
+		MaxLat = FMath::Max<double>(MaxLat, BlankPoint.Lat);
+		MaxLon = FMath::Max<double>(MaxLon, BlankPoint.Lon);
+		MinLat = FMath::Min<double>(MinLat, BlankPoint.Lat);
+		MinLon = FMath::Min<double>(MinLon, BlankPoint.Lon);
+
+		Points.Add(BlankPoint);
+	}
+
+	FileStream.close();
 
 	TopLeft.Lat = MaxLat;
 	TopLeft.Lon = MinLon;
@@ -725,6 +799,16 @@ TArray<FMissionPoint> UKulaginStatics::NativePointsToPoints(TArray<FMissionPoint
 	for (FMissionPointNative CurrentPointNative : PointsNative)
 	{
 		TempPoints.Add(FMissionPoint(CurrentPointNative));
+	}
+	return TempPoints;
+}
+
+TArray<FPlaneMissionPoint> UKulaginStatics::PlaneNativePointsToPoints(TArray<FPlaneMissionPointNative> PointsNative)
+{
+	TArray<FPlaneMissionPoint> TempPoints;
+	for (FPlaneMissionPointNative CurrentPointNative : PointsNative)
+	{
+		TempPoints.Add(FPlaneMissionPoint(CurrentPointNative));
 	}
 	return TempPoints;
 }
@@ -786,17 +870,77 @@ bool UKulaginStatics::SavePointsNativeToFile(const TCHAR* Path, TArray<FMissionP
 		FileStream.write((char*)&CurrentNativePoint.type, sizeof(CurrentNativePoint.type));
 	}
 
+	FileStream.close();
+
 	return true;
 }
 
-TArray<FMissionPointNative> UKulaginStatics::PointsToNativePoints(TArray<FMissionPoint> PointsNative)
+bool UKulaginStatics::SavePlanePointsToFile(FBinaryFilePath Path, TArray<FPlaneMissionPoint> Points)
 {
-	TArray<FMissionPointNative> TempPoints;
-	for (FMissionPoint CurrentPointNative : PointsNative)
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SavePlanePointsToFile: Path = %s"), *Path.GetFullPath());
+
+	if (Path.PathOnly.IsEmpty())
+#if WITH_EDITOR
+		Path.PathOnly = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir());
+#else
+		Path.PathOnly = FPaths::ConvertRelativePathToFull(FPaths::RootDir());
+#endif
+
+	const FString FullPath = Path.GetFullPath();
+	const TCHAR* WideNativePath = *FullPath;
+	//const char* NativePath = TCHAR_TO_ANSI(WideNativePath);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SavePlanePointsToFile: Native Path via FString = %s"), *FString(WideNativePath));
+
+	const bool Result = SavePlanePointsNativeToFile(WideNativePath, PlanePointsToNativePoints(Points));
+
+	//IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+
+	return Result;
+}
+
+bool UKulaginStatics::SavePlanePointsNativeToFile(const TCHAR* Path, TArray<FPlaneMissionPointNative> PointsNative)
+{
+	std::fstream FileStream;
+
+	FileStream.open(Path, std::fstream::out | std::fstream::binary);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SavePlanePointsNativeToFile: FileStream %s"), FileStream.is_open() ? *FString("OPENED") : *FString("CLOSED"));
+
+	if (!FileStream.is_open())
+		return false;
+
+	for (FPlaneMissionPointNative CurrentNativePoint : PointsNative)
 	{
-		TempPoints.Add(FMissionPointNative(CurrentPointNative));
+		FileStream.write((char*)&CurrentNativePoint.Lat, sizeof(CurrentNativePoint.Lat));
+		FileStream.write((char*)&CurrentNativePoint.Lon, sizeof(CurrentNativePoint.Lon));
+		FileStream.write((char*)&CurrentNativePoint.Alt, sizeof(CurrentNativePoint.Alt));
+		FileStream.write((char*)&CurrentNativePoint.Time, sizeof(CurrentNativePoint.Time));
 	}
-	return TempPoints;
+
+	FileStream.close();
+
+	return true;
+}
+
+TArray<FMissionPointNative> UKulaginStatics::PointsToNativePoints(TArray<FMissionPoint> Points)
+{
+	TArray<FMissionPointNative> TempPointsNative;
+	for (FMissionPoint CurrentPoint : Points)
+	{
+		TempPointsNative.Add(FMissionPointNative(CurrentPoint));
+	}
+	return TempPointsNative;
+}
+
+TArray<FPlaneMissionPointNative> UKulaginStatics::PlanePointsToNativePoints(TArray<FPlaneMissionPoint> Points)
+{
+	TArray<FPlaneMissionPointNative> TempPointsNative;
+	for (FPlaneMissionPoint CurrentPoint : Points)
+	{
+		TempPointsNative.Add(FPlaneMissionPointNative(CurrentPoint));
+	}
+	return TempPointsNative;
 }
 
 void UKulaginStatics::AddMissionPointsOffset(UPARAM(ref) TArray<FMissionPoint> &Points, FVector Offset)

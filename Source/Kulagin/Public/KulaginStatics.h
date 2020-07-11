@@ -157,14 +157,28 @@ public:
 
 	static TArray<FMissionPointNative> GetPointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight);
 
+	UFUNCTION(BlueprintCallable)
+	static FPlaneMissionPointList GetPlanePointsFromFile(FBinaryFilePath Path);
+
+	static TArray<FPlaneMissionPointNative> GetPlanePointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight);
+
 	static TArray<FMissionPoint> NativePointsToPoints(TArray<FMissionPointNative> PointsNative);
+
+	static TArray<FPlaneMissionPoint> PlaneNativePointsToPoints(TArray<FPlaneMissionPointNative> PointsNative);
 
 	UFUNCTION(BlueprintCallable)
 	static bool SavePointsToFile(FBinaryFilePath Path, TArray<FMissionPoint> Points);
 
 	static bool SavePointsNativeToFile(const TCHAR* Path, TArray<FMissionPointNative> PointsNative);
 
-	static TArray<FMissionPointNative> PointsToNativePoints(TArray<FMissionPoint> PointsNative);
+	UFUNCTION(BlueprintCallable)
+	static bool SavePlanePointsToFile(FBinaryFilePath Path, TArray<FPlaneMissionPoint> Points);
+
+	static bool SavePlanePointsNativeToFile(const TCHAR* Path, TArray<FPlaneMissionPointNative> PointsNative);
+
+	static TArray<FMissionPointNative> PointsToNativePoints(TArray<FMissionPoint> Points);
+
+	static TArray<FPlaneMissionPointNative> PlanePointsToNativePoints(TArray<FPlaneMissionPoint> Points);
 
 	/** Offset in Unreal Unints */
 	UFUNCTION(BlueprintCallable)
