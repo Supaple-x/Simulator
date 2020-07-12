@@ -191,4 +191,18 @@ public:
 	bool RiseMovingActor();
 	virtual bool RiseMovingActor_Implementation();
 
+	/*
+	 * Save containter path to file 
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool SavePath();
+	virtual bool SavePath_Implementation();
+
+	/*
+	 * Create a copy of container path
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool CopyPath(FVector Offset);
+	virtual bool CopyPath_Implementation(FVector Offset);
+
 };

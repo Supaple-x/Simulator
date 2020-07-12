@@ -302,3 +302,17 @@ bool AMapperContainerBase::RiseMovingActor_Implementation()
 	bIsRised = true;
 	return DroneActor && DroneActor->RiseMovingActor();
 }
+
+bool AMapperContainerBase::SavePath_Implementation()
+{
+	UE_LOG(LogTemp, Error, TEXT("Kulagin: Container: SavePath NOT IMPLEMENTED"));
+
+	return false;
+}
+
+bool AMapperContainerBase::CopyPath_Implementation(FVector Offset)
+{
+	UE_LOG(LogTemp, Error, TEXT("Kulagin: Container: CopyPath NOT IMPLEMENTED"));
+
+	return false;
+}
