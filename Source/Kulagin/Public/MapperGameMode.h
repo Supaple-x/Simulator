@@ -68,8 +68,8 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleInstanceOnly)
 	float HeighmapMaxZ = 0.f;
 
-	UFUNCTION(BlueprintCallable, Category = "Mapper")
-	float GetHeighmapMinZ() const;
+	UFUNCTION(BlueprintPure, Category = "Mapper")
+	float GetHeighmapMinZ();
 
 	UFUNCTION(BlueprintCallable, Category = "Mapper")
 	void UpdateHeighmapMinZ(const float MinZ);
@@ -84,4 +84,15 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	ETileImageState HeighmapStateInit;
 #endif
+
+	bool bAutoHeighmapEnabled = false;
+
+	UFUNCTION(BlueprintPure, Category = "Mapper")
+	bool IsAutoHeighmapEnabled() const { return bAutoHeighmapEnabled; };
+
+	UFUNCTION(BlueprintCallable, Category = "Mapper")
+	void SetAutoHeighmapEnabled(const bool bEnabledIn);
+
+	UFUNCTION(BlueprintCallable, Category = "Mapper")
+	void UpdateCurrentTilesHeighmap();
 };

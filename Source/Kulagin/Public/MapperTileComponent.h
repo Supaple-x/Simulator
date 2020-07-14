@@ -103,13 +103,16 @@ public:
 	// MIN ZOOM
 
 	UFUNCTION(BlueprintCallable)
-	void GetMapTileMinZoom();
+	void GetBaseColorMinZoom();
 
 	UFUNCTION(BlueprintCallable)
-	void LoadBaseColorMinZoom();
+	void GetHeighmapMinZoom();
 
 	UFUNCTION(BlueprintCallable)
-	void LoadHeighmapMinZoom();
+	bool LoadBaseColorMinZoom();
+
+	UFUNCTION(BlueprintCallable)
+	bool LoadHeighmapMinZoom();
 
 	UFUNCTION(BlueprintCallable)
 	void SetBaseColorMinZoom(const FMapTileImage &TileImage);
@@ -125,6 +128,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsRounded();
+
+	bool bForceHeighmap = false;
 
 private:
 

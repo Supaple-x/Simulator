@@ -4,3 +4,8 @@
 
 #include "CoreMinimal.h"
 
+/* Bool to string */
+#define BToS(b) b ? L"True" : L"False"
+
+/* Bool to string caps*/
+#define BToC(b) b ? L"TRUE" : L"FALSE"

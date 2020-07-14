@@ -3,6 +3,7 @@
 #include "MapperGameMode.h"
 
 #include "MapperContainerBase.h"
+#include "MapperTileComponent.h"
 
 #include "KulaginStatics.h"
 
@@ -63,9 +64,10 @@ TArray<AMapperContainerBase*> AMapperGameMode::FindDangerZonesAtTime_Implementat
 	return Temp;
 }
 
-float AMapperGameMode::GetHeighmapMinZ() const
+float AMapperGameMode::GetHeighmapMinZ()
 {
-	return HeighmapMinZ;
+	AActor* SceneActor = GetSceneActor();
+	return SceneActor != nullptr ? SceneActor->GetActorLocation().Z * -1.f : 0.f;
 }
 
 void AMapperGameMode::UpdateHeighmapMinZ(const float MinZ)
@@ -98,4 +100,51 @@ void AMapperGameMode::ResetHeighmapMinZ()
 	FVector Loc = SceneActor->GetActorLocation();
 	Loc.Z = 0.f;
 	SceneActor->SetActorLocation(Loc);
+}
+
+void AMapperGameMode::SetAutoHeighmapEnabled(const bool bEnabledIn)
+{
+	UE_LOG(LogTemp, Warning, TEXT("MapperGameMode: SetAutoHeighmapEnabled"));
+
+	AActor* Scene = GetSceneActor();
+	if (Scene == nullptr) return;
+
+	bAutoHeighmapEnabled = bEnabledIn;
+
+	if (bAutoHeighmapEnabled == false) return;
+
+	TSet<UActorComponent*> Components = Scene->GetComponents();
+
+	for (UActorComponent* Current : Components)
+	{
+		UMapperTileComponent* Tile = Cast<UMapperTileComponent>(Current);
+		if (Tile == nullptr) continue;
+
+		Tile->SetComponentTickEnabled(true);
+		Tile->UpdateTile();
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("MapperGameMode: SetAutoHeighmapEnabled: Done for %i components"), Components.Num());
+}
+
+void AMapperGameMode::UpdateCurrentTilesHeighmap()
+{
+	UE_LOG(LogTemp, Warning, TEXT("MapperGameMode: SetAutoHeighmapEnabled"));
+
+	AActor* Scene = GetSceneActor();
+	if (Scene == nullptr) return;
+
+	TSet<UActorComponent*> Components = Scene->GetComponents();
+
+	for (UActorComponent* Current : Components)
+	{
+		UMapperTileComponent* Tile = Cast<UMapperTileComponent>(Current);
+		if (Tile == nullptr || Tile->bForceHeighmap) continue;
+
+		Tile->bForceHeighmap = true;
+		Tile->SetComponentTickEnabled(true);
+		Tile->UpdateTile();
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("MapperGameMode: SetAutoHeighmapEnabled: Done for %i components"), Components.Num());
 }

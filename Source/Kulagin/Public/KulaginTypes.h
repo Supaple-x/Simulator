@@ -388,13 +388,19 @@ struct FMapTileImage
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite) FMapTileInfo Info;
+	UPROPERTY(BlueprintReadWrite) bool bBaseColorBeginLoad = false;
 	UPROPERTY(BlueprintReadWrite) UTexture* BaseColor;
+	UPROPERTY(BlueprintReadWrite) bool bHeighmapBeginLoad = false;
 	UPROPERTY(BlueprintReadWrite) UMapperHeighmap* Heighmap;
 
 	FMapTileImage(const FMapTileInfo& InfoIn, UTexture2DDynamic* BaseColorIn = nullptr, UMapperHeighmap* HeighmapIn = nullptr)
 	: Info(InfoIn), BaseColor(BaseColorIn), Heighmap(HeighmapIn) {};
 
 	FMapTileImage() : FMapTileImage(FMapTileInfo(), nullptr, nullptr) {};
+
+	bool IsBaseColorValid() const { return BaseColor != nullptr; };
+
+	bool IsHeighmapValid() const { return Heighmap != nullptr; };
 };
 
 USTRUCT(BlueprintType)
