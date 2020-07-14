@@ -119,7 +119,8 @@ enum class EPointContainerType : uint8
 {
 	PCT_Mission				UMETA(DisplayName = "Mission"),
 	PCT_Log					UMETA(DisplayName = "Log"),
-	PCT_Orient				UMETA(DisplayName = "Orient")
+	PCT_Orient				UMETA(DisplayName = "Orient"),
+	PCT_PlaneMission		UMETA(DisplayName = "Plane Mission")
 };
 
 UENUM(BlueprintType)

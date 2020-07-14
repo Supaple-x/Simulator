@@ -246,6 +246,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static FVector LogPointToUE(const FLogPoint &Point, float StartAlt);
 
+	UFUNCTION(BlueprintCallable)
+	static FVector PlaneMissionPointToUE(const FPlaneMissionPoint &Point, float StartAlt);
+
 	static FVector WGS84ToUE(double Lat, double LatReference, double Lon, double LonReference, float Alt, float StartAlt);
 
 	UFUNCTION(BlueprintCallable)
@@ -256,6 +259,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void UEToLogPoint(UPARAM(ref) FLogPoint &Point, FVector Loc, float StartAlt);
+
+	UFUNCTION(BlueprintCallable)
+	static void UEToPlaneMissionPoint(UPARAM(ref) FPlaneMissionPoint &Point, FVector Loc, float StartAlt);
 
 	static void UEToWGS84(FVector Loc, double &Lat, double LatReference, double &Lon, double LonReference, float &Alt, float StartAlt);
 

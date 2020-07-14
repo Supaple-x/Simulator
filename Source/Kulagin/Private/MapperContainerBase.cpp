@@ -30,7 +30,11 @@ void AMapperContainerBase::GetPointsOfClass(TSubclassOf<AMapperPointBase> PointC
 
 	for (AMapperPointBase* Current : PointActors)
 	{
-		if (Current && Current->GetClass() == PointClass)
+		if (Current == nullptr) continue;
+		
+		UClass* CurrentClass = Current->GetClass();
+
+		if (CurrentClass == PointClass || CurrentClass->IsChildOf(PointClass))
 			OutPoints.Add(Current);
 	}
 }

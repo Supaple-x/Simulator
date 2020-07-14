@@ -1072,6 +1072,11 @@ FVector UKulaginStatics::LogPointToUE(const FLogPoint &Point, float StartAlt)
 	return WGS84ToUE(Point.Lat, Reference.LatReference, Point.Lon, Reference.LonReference, Point.Alt, StartAlt);
 }
 
+FVector UKulaginStatics::PlaneMissionPointToUE(const FPlaneMissionPoint &Point, float StartAlt)
+{
+	return WGS84ToUE(Point.LatLon.Lat, Reference.LatReference, Point.LatLon.Lon, Reference.LonReference, Point.Alt, StartAlt);
+}
+
 FVector UKulaginStatics::WGS84ToUE(double Lat, double LatReference, double Lon, double LonReference, float Alt, float StartAlt)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: WGS84ToUE: v5"));
@@ -1108,6 +1113,11 @@ void UKulaginStatics::UEToWGS84(FMissionPoint &Point, FVector Loc, float StartAl
 void UKulaginStatics::UEToLogPoint(FLogPoint &Point, FVector Loc, float StartAlt)
 {
 	UEToWGS84(Loc, Point.Lat, Reference.LatReference, Point.Lon, Reference.LonReference, Point.Alt, StartAlt);
+}
+
+void UKulaginStatics::UEToPlaneMissionPoint(FPlaneMissionPoint &Point, FVector Loc, float StartAlt)
+{
+	UEToWGS84(Loc, Point.LatLon.Lat, Reference.LatReference, Point.LatLon.Lon, Reference.LonReference, Point.Alt, StartAlt);
 }
 
 void UKulaginStatics::UEToWGS84(FVector Loc, double &Lat, double LatReference, double &Lon, double LonReference, float &Alt, float StartAlt)
