@@ -437,7 +437,7 @@ void UKulaginStatics::GetMinZoomIndex(const FMapTileInfo &Info, const FVector Ti
 	float SizeX, SizeY;
 	Info.GetWorldSize(SizeX, SizeY);
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: Statics: GetMinZoomIndex: DistX = %i, DistY = %i, SizeX = %i, SizeX = %i,"), int32(DistX), int32(DistY), int32(SizeX), int32(SizeY));
-	const int32 IndexMax = FMath::Pow(2, MaxZoom - MinZoom);
+	const int32 IndexMax = GetZoomMaxIndex();
 	IndexY = FMath::FloorToInt(DistX / SizeX * float(IndexMax));
 	IndexX = FMath::FloorToInt(DistY / SizeY * float(IndexMax));
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: Statics: GetMinZoomIndex: IndexX = %i, IndexY = %i"), IndexX, IndexY);
@@ -1117,4 +1117,9 @@ void UKulaginStatics::UEToWGS84(FVector Loc, double &Lat, double LatReference, d
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: WGS84ToUE: LatReference = %f, LonReference = %f"), float(LatReference), float(LonReference));
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: WGS84ToUE: Lat = %f, Lon = %f"), float(Lat), float(Lon));
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: WGS84ToUE: X = %f, Y = %f"), Loc.X, Loc.Y);
+}
+
+int32 UKulaginStatics::GetZoomMaxIndex()
+{
+	return FMath::Pow(2, MaxZoom - MinZoom);
 }

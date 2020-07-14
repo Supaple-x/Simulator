@@ -104,10 +104,16 @@ public:
 	UFUNCTION(BlueprintPure)
 	static int32 GetMaxZoom() { return MaxZoom; };
 
+	UFUNCTION(BlueprintCallable)
+	static void SetMaxZoom(int32 MaxZoomIn) { MaxZoom = MaxZoomIn; };
+
 	static int32 MinZoom;
 
 	UFUNCTION(BlueprintPure)
 	static int32 GetMinZoom() { return MinZoom; };
+
+	UFUNCTION(BlueprintCallable)
+	static void SetMinZoom(int32 MinZoomIn) { MinZoom = MinZoomIn; };
 
 	UFUNCTION(BlueprintPure)
 	static FLatLon GetLatLonTopLeft() { return FLatLon::TopLeft; };
@@ -263,5 +269,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static bool IsValidDroneData(const FDroneData Data) { return Data.IsValid(); };
+
+	UFUNCTION(BlueprintPure)
+	static int32 GetZoomMaxIndex();
 
 };
