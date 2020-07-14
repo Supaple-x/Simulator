@@ -24,6 +24,17 @@ void AMapperContainerBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AMapperContainerBase::GetPointsOfClass(TSubclassOf<AMapperPointBase> PointClass, TArray<AMapperPointBase*>& OutPoints)
+{
+	OutPoints.Empty();
+
+	for (AMapperPointBase* Current : PointActors)
+	{
+		if (Current && Current->GetClass() == PointClass)
+			OutPoints.Add(Current);
+	}
+}
+
 float AMapperContainerBase::GetDangerZoneRadiusUU() const
 {
 	return DangerZoneRadius / 100. * UKulaginStatics::Scale;

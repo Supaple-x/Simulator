@@ -48,6 +48,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<AMapperPointBase*> PointActors;
+
+	UFUNCTION(BlueprintCallable, Category = "Utilities", meta = (DeterminesOutputType = "PointClass", DynamicOutputParam = "OutPoints"))
+	void GetPointsOfClass(TSubclassOf<AMapperPointBase> PointClass, TArray<AMapperPointBase*>& OutPoints);
 	
 	UPROPERTY(BlueprintReadWrite)
 	AMapperDroneBase* DroneActor;
