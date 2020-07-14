@@ -170,10 +170,14 @@ void UMapperTileComponent::UpdateTile()
 
 bool UMapperTileComponent::IsRounded()
 { 
-	//return true;
 	if (bRounded) return true;
 
 	AMapperGameMode* GM = UKulaginStatics::GetMapperGameMode(this);
+
+#if WITH_EDITOR
+	if (GM && GM->bEnableRoundTiles == false) return true;
+#endif
+
 	if (GM == nullptr) return false;
 
 	TArray<FIntPoint> NearTiles = { FIntPoint(-1,0),FIntPoint(0,-1) ,FIntPoint(1,0) ,FIntPoint(0,1) };
@@ -188,7 +192,10 @@ bool UMapperTileComponent::IsRounded()
 
 void UMapperTileComponent::RoundTile()
 {
-	//return;
+#if WITH_EDITOR
+	AMapperGameMode* GM = UKulaginStatics::GetMapperGameMode(this);
+	if (GM && GM->bEnableRoundTiles == false) return;
+#endif
 	TArray<UMapperTileComponent**> TileReferences;// = { LeftTile, TopTile, RightTile, BottomTile };
 	TileReferences.Add(&LeftTile);
 	TileReferences.Add(&TopTile);
@@ -345,7 +352,7 @@ void UMapperTileComponent::SetBaseColorMinZoom(const FMapTileImage &TileImage)
 		int32 IndexX, IndexY;
 		UKulaginStatics::GetMinZoomIndex(TileImage.Info, GetComponentLocation(), IndexX, IndexY);
 		CurrentInstance->SetTextureParameterValue("Tex", TileImage.BaseColor);
-		CurrentInstance->SetScalarParameterValue("Zoom", float(UKulaginStatics::MinZoom));
+		CurrentInstance->SetScalarParameterValue("Zoom", float(UKulaginStatics::GetZoomMaxIndex()));
 		CurrentInstance->SetScalarParameterValue("IndexX", float(IndexX));
 		CurrentInstance->SetScalarParameterValue("IndexY", float(IndexY));
 
@@ -371,7 +378,7 @@ void UMapperTileComponent::SetHeighmapMinZoom(const FMapTileImage &TileImage)
 
 	int32 IndexX, IndexY;
 	UKulaginStatics::GetMinZoomIndex(TileImage.Info, GetComponentLocation(), IndexX, IndexY);
-	const int32 IndexCount = FMath::Pow(2.f, UKulaginStatics::MaxZoom - UKulaginStatics::MinZoom);
+	const int32 IndexCount = UKulaginStatics::GetZoomMaxIndex();
 
 	UpdateHeighmapVertices(TileImage.Heighmap, IndexX, IndexY, IndexCount);
 
@@ -462,7 +469,7 @@ void UMapperTileComponent::OnMapTileMaxZoomSuccess(UTexture2DDynamic* Texture)
 		UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperTileComponent: OnMapTileMaxZoomSuccess: Instance VALID"));
 
 		CurrentInstance->SetTextureParameterValue("Tex", Texture);
-		CurrentInstance->SetScalarParameterValue("Zoom", float(UKulaginStatics::MaxZoom));
+		CurrentInstance->SetScalarParameterValue("Zoom", 1.f);
 		CurrentInstance->SetScalarParameterValue("IndexX", 0.f);
 		CurrentInstance->SetScalarParameterValue("IndexY", 0.f);
 	}

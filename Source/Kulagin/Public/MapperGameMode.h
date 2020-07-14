@@ -78,11 +78,22 @@ public:
 	void ResetHeighmapMinZ();
 
 #if WITH_EDITORONLY_DATA 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	ETileImageState BaseColorStateInit;
 
-	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	ETileImageState HeighmapStateInit;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bEnableDefaultTiles = true;
+
+	/* Min, Max */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FIntPoint DefaultTilesCount = FIntPoint(8, 16);
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	bool bEnableRoundTiles = true;
+
 #endif
 
 	bool bAutoHeighmapEnabled = false;

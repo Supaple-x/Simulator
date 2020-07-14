@@ -285,11 +285,14 @@ float UMapperHeighmap::GetHeigh(const float PercentageX, const float PercentageY
 	if (Data.Num() < (IndexCount * IndexCount))
 		return 0.f;
 
+	const float OfsetMPX = 1.f - OffsetLeft - OffsetRight;
+	const float OfsetMPY = 1.f - OffsetTop - OffsetBottom;
+
 	const float ShiftX = float(IndexX) / float(IndexCount);
 	const float ShiftY = float(IndexY) / float(IndexCount);
 
-	const float LocalPercentageX = ShiftX + PercentageX / float(IndexCount);
-	const float LocalPercentageY = ShiftY + PercentageY / float(IndexCount);
+	const float LocalPercentageX = OffsetLeft + OfsetMPX * (ShiftX + PercentageX / float(IndexCount));
+	const float LocalPercentageY = OffsetTop + OfsetMPY * (ShiftY + PercentageY / float(IndexCount));
 
 	const float LocalX = float(SizeX - 1) * LocalPercentageX;
 	const float LocalY = float(SizeY - 1) * LocalPercentageY;
@@ -303,9 +306,10 @@ float UMapperHeighmap::GetHeigh(const float PercentageX, const float PercentageY
 	const int32 LocalCeilX = FMath::CeilToInt(LocalX);
 	const int32 LocalCeilY = FMath::CeilToInt(LocalY);
 
-	//UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: FloorX = %i, FloorY =  %i, CeilX = %i, CeilY = %i"), LocalFloorX, LocalFloorY, LocalCeilX, LocalCeilY);
-	//UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: LocalPercentageX = %f, LocalPercentageY = %f, ModX = %f, ModY =  %f"), LocalPercentageX, LocalPercentageY, ModX, ModY);
-	//UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: PercentageX = %f, PercentageY = %f"), PercentageX, PercentageY);
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: FloorX = %i, FloorY =  %i, CeilX = %i, CeilY = %i"), LocalFloorX, LocalFloorY, LocalCeilX, LocalCeilY);
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: LocalPercentageX = %f, LocalPercentageY = %f, ModX = %f, ModY =  %f"), LocalPercentageX, LocalPercentageY, ModX, ModY);
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: PercentageX = %f, PercentageY = %f"), PercentageX, PercentageY);
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: MapperHeighmap: GetHeigh: LocalX = %f, LocalX = %f, OfsetMPX = %f, OfsetMPY = %f"), LocalX, LocalY, OfsetMPX, OfsetMPY);
 
 	//FMath::FloorToInt
 	//FMath::CeilToInt

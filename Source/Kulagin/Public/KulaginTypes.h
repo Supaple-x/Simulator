@@ -365,13 +365,18 @@ class UMapperHeighmap : public UObject
 
 public:
 
+	UPROPERTY(BlueprintReadWrite) float OffsetLeft;
+	UPROPERTY(BlueprintReadWrite) float OffsetTop;
+	UPROPERTY(BlueprintReadWrite) float OffsetRight;
+	UPROPERTY(BlueprintReadWrite) float OffsetBottom;
+
 	UPROPERTY(BlueprintReadWrite) int32 SizeX;
 
 	UPROPERTY(BlueprintReadWrite) int32 SizeY;
 
-	UPROPERTY(BlueprintReadWrite) TArray<int32> Data;
-
 	UPROPERTY(BlueprintReadWrite) int32 MinHeigh;
+
+	UPROPERTY(BlueprintReadWrite) TArray<int32> Data;
 
 	UFUNCTION(BlueprintCallable)
 	void InitData(const int32 SizeXIn, const int32 SizeYIn);

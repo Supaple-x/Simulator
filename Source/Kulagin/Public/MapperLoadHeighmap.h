@@ -47,6 +47,12 @@ private:
 	
 	FString FilePath;
 
+	FLatLon TileBottomLeft;
+	FLatLon TileTopRight;
+
+	//float SizeX;
+	//float SizeY;
+
 	/*
 	 * Lat Lon corners
 	 * 0 - Top Left, 1 - Top Right, 2 - Bottom Left, 3 - Bottom Right

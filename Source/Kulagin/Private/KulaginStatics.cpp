@@ -383,7 +383,10 @@ UMapperTileComponent* UKulaginStatics::SpawnMapTile(USceneComponent* Parent, con
 
 void UKulaginStatics::SpawnDefaultTiles(USceneComponent* Parent, FLatLon TopLeft, FLatLon BottomRight)
 {
-	//return;
+#if WITH_EDITOR
+	AMapperGameMode* GM = UKulaginStatics::GetMapperGameMode(Parent);
+	if (GM && GM->bEnableDefaultTiles == false) return;
+#endif
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: Statics: SpawnDefaultTiles v17"));
 
 	const FMapTileInfo InfoTopLeft(TopLeft, MaxZoom);
@@ -398,8 +401,16 @@ void UKulaginStatics::SpawnDefaultTiles(USceneComponent* Parent, FLatLon TopLeft
 	const FIntPoint TileBottomRight = InfoBottomRight.GetGoogleTile();
 	const FIntPoint TileCenter = InfoCenter.GetGoogleTile();
 
-	const int32 TilesCountX = FMath::Clamp(FMath::Abs(TileTopLeft.X - TileBottomRight.X), 8, 16);
-	const int32 TilesCountY = FMath::Clamp(FMath::Abs(TileTopLeft.Y - TileBottomRight.Y), 8, 16);
+#if WITH_EDITOR
+	const int32 TilesMin = GM ? GM->DefaultTilesCount.X : 8;
+	const int32 TilesMax = GM ? GM->DefaultTilesCount.Y : 16;
+#else
+	const int32 TilesMin = 8;
+	const int32 TilesMax = 16;
+#endif
+
+	const int32 TilesCountX = FMath::Clamp(FMath::Abs(TileTopLeft.X - TileBottomRight.X), TilesMin, TilesMax);
+	const int32 TilesCountY = FMath::Clamp(FMath::Abs(TileTopLeft.Y - TileBottomRight.Y), TilesMin, TilesMax);
 
 	const int32 XCenter = TileCenter.X;
 	const int32 YCenter = TileCenter.Y;

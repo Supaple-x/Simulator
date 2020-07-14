@@ -27,11 +27,26 @@ UMapperLoadHeighmap::UMapperLoadHeighmap(const FObjectInitializer& ObjectInitial
 UMapperLoadHeighmap* UMapperLoadHeighmap::LoadHeighmapTile(const FMapTileInfo& InfoIn)
 {
 	UMapperLoadHeighmap* GetHeighmapTask = NewObject<UMapperLoadHeighmap>();
-	GetHeighmapTask->Corners.Add(InfoIn.TopLeft);
-	GetHeighmapTask->Corners.Add(InfoIn.TopRight);
-	GetHeighmapTask->Corners.Add(InfoIn.BottomLeft);
-	GetHeighmapTask->Corners.Add(InfoIn.BottomRight);
+
+	float SizeX, SizeY;
+	InfoIn.GetWorldSize(SizeX, SizeY);
+
+	const float Offset = 0.35f;
+
+	const FVector TopLeft = UKulaginStatics::LatLonToUE(InfoIn.TopLeft, 0.f) + FVector(-SizeX, SizeY, 0.f) * Offset;
+	const FVector TopRight = UKulaginStatics::LatLonToUE(InfoIn.TopRight, 0.f) + FVector(SizeX, SizeY, 0.f) * Offset;
+	const FVector BottomLeft = UKulaginStatics::LatLonToUE(InfoIn.BottomLeft, 0.f) + FVector(-SizeX, -SizeY, 0.f) * Offset;
+	const FVector BottomRight = UKulaginStatics::LatLonToUE(InfoIn.BottomRight, 0.f) + FVector(SizeX, -SizeY, 0.f) * Offset;
+
+	GetHeighmapTask->Corners.Add(UKulaginStatics::UEToLatLon(TopLeft));
+	GetHeighmapTask->Corners.Add(UKulaginStatics::UEToLatLon(TopRight));
+	GetHeighmapTask->Corners.Add(UKulaginStatics::UEToLatLon(BottomLeft));
+	GetHeighmapTask->Corners.Add(UKulaginStatics::UEToLatLon(BottomRight));
+
 	GetHeighmapTask->FilePath = InfoIn.GetFilename();
+	GetHeighmapTask->TileBottomLeft = InfoIn.BottomLeft;
+	GetHeighmapTask->TileTopRight = InfoIn.TopRight;
+
 	GetHeighmapTask->Start();
 
 	return GetHeighmapTask;
@@ -134,6 +149,44 @@ void UMapperLoadHeighmap::OnRequestComplete(FHttpRequestPtr Request, FHttpRespon
 	TSharedPtr<FJsonObject> Data = JsonObject->GetObjectField(L"data");
 	TArray<TSharedPtr<FJsonValue>> BaseCarpet = Data->GetArrayField(L"carpet");
 
+	TSharedPtr <FJsonObject> Bounds = Data->GetObjectField(L"bounds");
+	TArray<TSharedPtr<FJsonValue>> BoundsSW = Bounds->GetArrayField(L"sw");
+	TArray<TSharedPtr<FJsonValue>> BoundsNE = Bounds->GetArrayField(L"ne");
+
+	double SWLat = 0., SWLon = 0., NELat = 0., NELon = 0.;
+
+	if (BoundsSW.Num() == 2)
+	{
+		SWLat = BoundsSW[0]->AsNumber();
+		SWLon = BoundsSW[1]->AsNumber();
+	}
+	if (BoundsNE.Num() == 2)
+	{
+		NELat = BoundsNE[0]->AsNumber();
+		NELon = BoundsNE[1]->AsNumber();
+	}
+
+	const FLatLon SWLatLon(SWLat, SWLon);
+	const FLatLon NELatLon(NELat, NELon);
+
+	const FVector DataBottomLeftLoc = UKulaginStatics::LatLonToUE(SWLatLon, 0.f);
+	const FVector DataTopRightLoc = UKulaginStatics::LatLonToUE(NELatLon, 0.f);
+
+	const FVector TileBottomLeftLoc = UKulaginStatics::LatLonToUE(TileBottomLeft, 0.f);
+	const FVector TileTopRightLoc = UKulaginStatics::LatLonToUE(TileTopRight, 0.f);
+
+	const float DataSizeX = FMath::Abs(DataBottomLeftLoc.X - DataTopRightLoc.X);
+	const float DataSizeY = FMath::Abs(DataBottomLeftLoc.Y - DataTopRightLoc.Y);
+
+	const float DeltaLeft = FMath::Abs(DataBottomLeftLoc.X - TileBottomLeftLoc.X);
+	const float DeltaTop = FMath::Abs(DataTopRightLoc.Y - TileTopRightLoc.Y);
+	const float DeltaRight = FMath::Abs(DataTopRightLoc.X - TileTopRightLoc.X);
+	const float DeltaBottom = FMath::Abs(TileBottomLeftLoc.Y - DataBottomLeftLoc.Y);
+
+	UE_LOG(LogTemp, Error, TEXT("Kulagin: MapperLoadHeighmap: OnRequestComplete: DATA SW Lat = %f, Lon = %f, NE Lat = %f, Lon = %f"), SWLat, SWLon, NELat, NELon);
+	UE_LOG(LogTemp, Error, TEXT("Kulagin: MapperLoadHeighmap: OnRequestComplete: TILE SW Lat = %f, Lon = %f, NE Lat = %f, Lon = %f"), 
+		TileBottomLeft.Lat, TileBottomLeft.Lon, TileTopRight.Lat, TileTopRight.Lon);
+
 	TSharedPtr<FJsonObject> Stats = Data->GetObjectField(L"stats");
 
 	const double MinDouble = Stats->GetNumberField(L"min");
@@ -165,6 +218,17 @@ void UMapperLoadHeighmap::OnRequestComplete(FHttpRequestPtr Request, FHttpRespon
 
 	UMapperHeighmap* Heighmap = NewObject<UMapperHeighmap>();
 	Heighmap->InitData(SizeX, SizeY);
+	//Heighmap->OffsetLeft = DeltaLeft / DataSizeX;
+	//Heighmap->OffsetTop = DeltaTop / DataSizeY;
+	//Heighmap->OffsetRight = DeltaRight / DataSizeX;
+	//Heighmap->OffsetBottom = DeltaBottom / DataSizeY;
+	Heighmap->OffsetLeft = DeltaLeft / DataSizeX;
+	Heighmap->OffsetTop = DeltaTop / DataSizeY;
+	Heighmap->OffsetRight = DeltaRight / DataSizeX;
+	Heighmap->OffsetBottom = DeltaBottom / DataSizeY;
+
+	UE_LOG(LogTemp, Error, TEXT("Kulagin: MapperLoadHeighmap: OnRequestComplete: Offset left = %f, top = %f, right = %f, bottom = %f"), 
+		Heighmap->OffsetLeft, Heighmap->OffsetTop, Heighmap->OffsetRight, Heighmap->OffsetBottom);
 
 	TArray<int32> &ImageData = Heighmap->Data;
 	int32 &MinHeigh = Heighmap->MinHeigh;
