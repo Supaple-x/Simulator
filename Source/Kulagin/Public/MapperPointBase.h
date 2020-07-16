@@ -33,4 +33,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mapper")
 	void DrawDangerZoneMask(UTextureRenderTarget2D* RenderTarget, float StartPercent, float EndPercent);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool SetNextPoint(AMapperPointBase* NextPointIn);
+	virtual bool SetNextPoint_Implementation(AMapperPointBase* NextPointIn);
+
+	/* Update actor properties in game world from point data */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool UpdateActorFromData();
+	virtual bool UpdateActorFromData_Implementation();
+
+	UPROPERTY(BlueprintReadWrite)
+	float StartAlt;
+
 };

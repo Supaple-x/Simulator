@@ -84,3 +84,13 @@ void AMapperPointBase::DrawDangerZoneMask(UTextureRenderTarget2D* RenderTarget, 
 
 	Canvas->DrawItem(BoxItem);
 }
+
+bool AMapperPointBase::SetNextPoint_Implementation(AMapperPointBase* NextPointIn)
+{
+	return false;
+}
+
+bool AMapperPointBase::UpdateActorFromData_Implementation()
+{
+	return false;
+}
