@@ -62,11 +62,11 @@ public:
 	bool SetLast();
 	virtual bool SetLast_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Mapper")
 	bool IsFirst();
 	virtual bool IsFirst_Implementation();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Mapper")
 	bool IsLast();
 	virtual bool IsLast_Implementation();
 
@@ -149,7 +149,7 @@ public:
 	float EnterTime;
 
 	UPROPERTY(BlueprintReadWrite)
-	bool StaticPointStruct;
+	bool bStaticPointStruct;
 
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsProjectionEnabled;
