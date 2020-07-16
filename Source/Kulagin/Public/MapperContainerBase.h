@@ -208,4 +208,11 @@ public:
 	bool CopyPath(FVector Offset);
 	virtual bool CopyPath_Implementation(FVector Offset);
 
+	/*
+	 * Move all points at container
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool ShiftPath(FVector Offset);
+	virtual bool ShiftPath_Implementation(FVector Offset);
+
 };

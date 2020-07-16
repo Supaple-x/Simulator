@@ -117,6 +117,7 @@ enum class ENaviFlagHeading : uint8
 UENUM(BlueprintType)
 enum class EPointContainerType : uint8
 {
+	PCT_None				UMETA(DisplayName = "None"),
 	PCT_Mission				UMETA(DisplayName = "Mission"),
 	PCT_Log					UMETA(DisplayName = "Log"),
 	PCT_Orient				UMETA(DisplayName = "Orient"),

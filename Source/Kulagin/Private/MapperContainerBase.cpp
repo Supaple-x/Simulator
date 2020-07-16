@@ -5,6 +5,7 @@
 #include "MapperGameMode.h"
 #include "MapperDroneBase.h"
 #include "MapperPointBase.h"
+#include "MapperPointInteractive.h"
 
 #include "KulaginStatics.h"
 
@@ -330,4 +331,17 @@ bool AMapperContainerBase::CopyPath_Implementation(FVector Offset)
 	UE_LOG(LogTemp, Error, TEXT("Kulagin: Container: CopyPath NOT IMPLEMENTED"));
 
 	return false;
+}
+
+bool AMapperContainerBase::ShiftPath_Implementation(FVector Offset)
+{
+	for (AMapperPointBase* Current : PointActors)
+	{
+		if (AMapperPointInteractive* CurrentInteractive = Cast<AMapperPointInteractive>(Current))
+		{
+			CurrentInteractive->AddActorWorldOffset(Offset);
+			CurrentInteractive->UpdateDataFromActor();
+		}
+	}
+	return true;
 }

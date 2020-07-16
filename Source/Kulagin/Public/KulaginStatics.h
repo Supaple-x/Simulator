@@ -194,6 +194,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void AddMissionPointOffset(UPARAM(ref) FMissionPoint &Point, FVector Offset);
 
+	/** Offset in Unreal Unints */
+	UFUNCTION(BlueprintCallable)
+	static void AddPlaneMissionPointsOffset(UPARAM(ref) TArray<FPlaneMissionPoint> &Points, FVector Offset);
+
+	/** Offset in Unreal Unints */
+	UFUNCTION(BlueprintCallable)
+	static void AddPlaneMissionPointOffset(UPARAM(ref) FPlaneMissionPoint &Point, FVector Offset);
+
 	static double GetValidDoubleFromString(FString Str);
 
 	static FString GetValidStringFromDouble(double Val);

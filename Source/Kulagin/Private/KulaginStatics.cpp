@@ -968,6 +968,20 @@ void UKulaginStatics::AddMissionPointOffset(UPARAM(ref) FMissionPoint &Point, FV
 	UEToWGS84(Point, TargetLoc, 0.f);
 }
 
+void UKulaginStatics::AddPlaneMissionPointsOffset(UPARAM(ref) TArray<FPlaneMissionPoint> &Points, FVector Offset)
+{
+	for (FPlaneMissionPoint &CurrentPoint : Points)
+	{
+		AddPlaneMissionPointOffset(CurrentPoint, Offset);
+	}
+}
+
+void UKulaginStatics::AddPlaneMissionPointOffset(UPARAM(ref) FPlaneMissionPoint &Point, FVector Offset)
+{
+	const FVector TargetLoc = PlaneMissionPointToUE(Point, 0.f) + Offset;
+	UEToPlaneMissionPoint(Point, TargetLoc, 0.f);
+}
+
 double UKulaginStatics::GetValidDoubleFromString(FString Str)
 {
 	FString FormattedString;
