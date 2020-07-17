@@ -31,3 +31,17 @@ bool AMapperDroneBase::RiseMovingActor_Implementation()
 	//
 	return false;
 }
+
+bool AMapperDroneBase::SetPaused_Implementation(bool bIsPausedIn)
+{
+	//
+
+	return IsPaused();
+}
+
+bool AMapperDroneBase::IsPaused_Implementation()
+{
+	//
+
+	return true;
+}

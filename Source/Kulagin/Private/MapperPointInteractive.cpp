@@ -106,7 +106,7 @@ AMapperPointBase* AMapperPointInteractive::GetPrevious_Implementation()
 }
 
 AMapperPointBase* AMapperPointInteractive::GetNext_Implementation() {
-	return (ParentContainer && ParentContainer->PointActors.IsValidIndex(PointIndex - 1)) ? ParentContainer->PointActors[PointIndex - 1] : TargetPoint;
+	return (ParentContainer && ParentContainer->PointActors.IsValidIndex(PointIndex + 1)) ? ParentContainer->PointActors[PointIndex + 1] : TargetPoint;
 }
 
 bool AMapperPointInteractive::UpdateSpeed_Implementation(float NewTargetTimeIn) { return false; }

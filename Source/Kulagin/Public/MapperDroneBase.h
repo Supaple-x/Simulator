@@ -33,4 +33,14 @@ public:
 	bool RiseMovingActor();
 	virtual bool RiseMovingActor_Implementation();
 
+	/* Return IsPaused */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool SetPaused(bool bIsPausedIn);
+	virtual bool SetPaused_Implementation(bool bIsPausedIn);
+
+	/* Return IsPaused */
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Mapper")
+	bool IsPaused();
+	virtual bool IsPaused_Implementation();
+
 };
