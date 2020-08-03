@@ -155,36 +155,50 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static FString AskUserForDirectory();
 
+	/* Get points from file */
+
 	UFUNCTION(BlueprintCallable)
 	static FLogPointList GetLogPointsFromFile(FBinaryFilePath Path);
 
 	UFUNCTION(BlueprintCallable)
 	static FMissionPointList GetPointsFromFile(FBinaryFilePath Path);
 
-	static TArray<FMissionPointNative> GetPointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight);
-
 	UFUNCTION(BlueprintCallable)
 	static FPlaneMissionPointList GetPlanePointsFromFile(FBinaryFilePath Path);
 
+	/* Get native points from file */
+
+	static TArray<FMissionPointNative> GetPointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight);
+
 	static TArray<FPlaneMissionPointNative> GetPlanePointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight);
+
+	/* Save point to file */
+
+	UFUNCTION(BlueprintCallable)
+	static bool SavePointsToFile(FBinaryFilePath Path, TArray<FMissionPoint> Points);
+
+	UFUNCTION(BlueprintCallable)
+	static bool SavePlanePointsToFile(FBinaryFilePath Path, TArray<FPlaneMissionPoint> Points);
+
+	/* Save native points to file */
+
+	static bool SavePointsNativeToFile(const TCHAR* Path, TArray<FMissionPointNative> PointsNative);
+
+	static bool SavePlanePointsNativeToFile(const TCHAR* Path, TArray<FPlaneMissionPointNative> PointsNative);
+
+	/* Native points to points */
 
 	static TArray<FMissionPoint> NativePointsToPoints(TArray<FMissionPointNative> PointsNative);
 
 	static TArray<FPlaneMissionPoint> PlaneNativePointsToPoints(TArray<FPlaneMissionPointNative> PointsNative);
 
-	UFUNCTION(BlueprintCallable)
-	static bool SavePointsToFile(FBinaryFilePath Path, TArray<FMissionPoint> Points);
-
-	static bool SavePointsNativeToFile(const TCHAR* Path, TArray<FMissionPointNative> PointsNative);
-
-	UFUNCTION(BlueprintCallable)
-	static bool SavePlanePointsToFile(FBinaryFilePath Path, TArray<FPlaneMissionPoint> Points);
-
-	static bool SavePlanePointsNativeToFile(const TCHAR* Path, TArray<FPlaneMissionPointNative> PointsNative);
+	/* Points to native points */
 
 	static TArray<FMissionPointNative> PointsToNativePoints(TArray<FMissionPoint> Points);
 
 	static TArray<FPlaneMissionPointNative> PlanePointsToNativePoints(TArray<FPlaneMissionPoint> Points);
+
+	/* Add offset to point array */
 
 	/** Offset in Unreal Unints */
 	UFUNCTION(BlueprintCallable)
@@ -192,11 +206,13 @@ public:
 
 	/** Offset in Unreal Unints */
 	UFUNCTION(BlueprintCallable)
-	static void AddMissionPointOffset(UPARAM(ref) FMissionPoint &Point, FVector Offset);
+	static void AddPlaneMissionPointsOffset(UPARAM(ref) TArray<FPlaneMissionPoint> &Points, FVector Offset);
+
+	/* Add offset to point */
 
 	/** Offset in Unreal Unints */
 	UFUNCTION(BlueprintCallable)
-	static void AddPlaneMissionPointsOffset(UPARAM(ref) TArray<FPlaneMissionPoint> &Points, FVector Offset);
+	static void AddMissionPointOffset(UPARAM(ref) FMissionPoint &Point, FVector Offset);
 
 	/** Offset in Unreal Unints */
 	UFUNCTION(BlueprintCallable)
