@@ -166,11 +166,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static FPlaneMissionPointList GetPlanePointsFromFile(FBinaryFilePath Path);
 
+	UFUNCTION(BlueprintCallable)
+	static FCarMissionPointList GetCarPointsFromFile(FBinaryFilePath Path);
+
+	UFUNCTION(BlueprintCallable)
+	static FHumanMissionPointList GetHumanPointsFromFile(FBinaryFilePath Path);
+
 	/* Get native points from file */
 
 	static TArray<FMissionPointNative> GetPointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight);
 
 	static TArray<FPlaneMissionPointNative> GetPlanePointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight);
+
+	static TArray<FCarMissionPointNative> GetCarPointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight);
+
+	static TArray<FHumanMissionPointNative> GetHumanPointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight);
 
 	/* Save point to file */
 
@@ -180,11 +190,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static bool SavePlanePointsToFile(FBinaryFilePath Path, TArray<FPlaneMissionPoint> Points);
 
+	UFUNCTION(BlueprintCallable)
+	static bool SaveCarPointsToFile(FBinaryFilePath Path, TArray<FCarMissionPoint> Points);
+
+	UFUNCTION(BlueprintCallable)
+	static bool SaveHumanPointsToFile(FBinaryFilePath Path, TArray<FHumanMissionPoint> Points);
+
 	/* Save native points to file */
 
 	static bool SavePointsNativeToFile(const TCHAR* Path, TArray<FMissionPointNative> PointsNative);
 
 	static bool SavePlanePointsNativeToFile(const TCHAR* Path, TArray<FPlaneMissionPointNative> PointsNative);
+
+	static bool SaveCarPointsNativeToFile(const TCHAR* Path, TArray<FCarMissionPointNative> PointsNative);
+
+	static bool SaveHumanPointsNativeToFile(const TCHAR* Path, TArray<FHumanMissionPointNative> PointsNative);
 
 	/* Native points to points */
 
@@ -192,11 +212,19 @@ public:
 
 	static TArray<FPlaneMissionPoint> PlaneNativePointsToPoints(TArray<FPlaneMissionPointNative> PointsNative);
 
+	static TArray<FCarMissionPoint> CarNativePointsToPoints(TArray<FCarMissionPointNative> PointsNative);
+
+	static TArray<FHumanMissionPoint> HumanNativePointsToPoints(TArray<FHumanMissionPointNative> PointsNative);
+
 	/* Points to native points */
 
 	static TArray<FMissionPointNative> PointsToNativePoints(TArray<FMissionPoint> Points);
 
 	static TArray<FPlaneMissionPointNative> PlanePointsToNativePoints(TArray<FPlaneMissionPoint> Points);
+
+	static TArray<FCarMissionPointNative> CarPointsToNativePoints(TArray<FCarMissionPoint> Points);
+
+	static TArray<FHumanMissionPointNative> HumanPointsToNativePoints(TArray<FHumanMissionPoint> Points);
 
 	/* Add offset to point array */
 
@@ -208,6 +236,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static void AddPlaneMissionPointsOffset(UPARAM(ref) TArray<FPlaneMissionPoint> &Points, FVector Offset);
 
+	/** Offset in Unreal Unints */
+	UFUNCTION(BlueprintCallable)
+	static void AddCarMissionPointsOffset(UPARAM(ref) TArray<FCarMissionPoint> &Points, FVector Offset);
+
+	/** Offset in Unreal Unints */
+	UFUNCTION(BlueprintCallable)
+	static void AddHumanMissionPointsOffset(UPARAM(ref) TArray<FHumanMissionPoint> &Points, FVector Offset);
+
 	/* Add offset to point */
 
 	/** Offset in Unreal Unints */
@@ -217,6 +253,14 @@ public:
 	/** Offset in Unreal Unints */
 	UFUNCTION(BlueprintCallable)
 	static void AddPlaneMissionPointOffset(UPARAM(ref) FPlaneMissionPoint &Point, FVector Offset);
+
+	/** Offset in Unreal Unints */
+	UFUNCTION(BlueprintCallable)
+	static void AddHumanMissionPointOffset(UPARAM(ref) FHumanMissionPoint &Point, FVector Offset);
+
+	/** Offset in Unreal Unints */
+	UFUNCTION(BlueprintCallable)
+	static void AddCarMissionPointOffset(UPARAM(ref) FCarMissionPoint &Point, FVector Offset);
 
 	static double GetValidDoubleFromString(FString Str);
 
@@ -273,6 +317,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	static FVector PlaneMissionPointToUE(const FPlaneMissionPoint &Point, float StartAlt);
 
+	UFUNCTION(BlueprintCallable)
+	static FVector CarMissionPointToUE(const FCarMissionPoint &Point, float StartAlt);
+
+	UFUNCTION(BlueprintCallable)
+	static FVector HumanMissionPointToUE(const FHumanMissionPoint &Point, float StartAlt);
+
 	static FVector WGS84ToUE(double Lat, double LatReference, double Lon, double LonReference, float Alt, float StartAlt);
 
 	UFUNCTION(BlueprintCallable)
@@ -286,6 +336,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void UEToPlaneMissionPoint(UPARAM(ref) FPlaneMissionPoint &Point, FVector Loc, float StartAlt);
+
+	UFUNCTION(BlueprintCallable)
+	static void UEToCarMissionPoint(UPARAM(ref) FCarMissionPoint &Point, FVector Loc, float StartAlt);
+
+	UFUNCTION(BlueprintCallable)
+	static void UEToHumanMissionPoint(UPARAM(ref) FHumanMissionPoint &Point, FVector Loc, float StartAlt);
 
 	static void UEToWGS84(FVector Loc, double &Lat, double LatReference, double &Lon, double LonReference, float &Alt, float StartAlt);
 

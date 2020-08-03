@@ -684,6 +684,38 @@ FPlaneMissionPointList UKulaginStatics::GetPlanePointsFromFile(FBinaryFilePath P
 	return FPlaneMissionPointList(Path, PlaneNativePointsToPoints(PointsNative), TopLeft, BottomRight);
 }
 
+FCarMissionPointList UKulaginStatics::GetCarPointsFromFile(FBinaryFilePath Path)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetCarPointsFromFile: Path = %s"), *Path.GetFullPath());
+
+	const FString FullPath = Path.GetFullPath();
+	const TCHAR* WideNativePath = *FullPath;
+	// const char* NativePath = TCHAR_TO_ANSI(WideNativePath);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetCarPointsFromFile: Native Path via FString = %s"), *FString(WideNativePath));
+
+	FLatLon TopLeft, BottomRight;
+	TArray<FCarMissionPointNative> PointsNative = GetCarPointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
+
+	return FCarMissionPointList(Path, CarNativePointsToPoints(PointsNative), TopLeft, BottomRight);
+}
+
+FHumanMissionPointList UKulaginStatics::GetHumanPointsFromFile(FBinaryFilePath Path)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetHumanPointsFromFile: Path = %s"), *Path.GetFullPath());
+
+	const FString FullPath = Path.GetFullPath();
+	const TCHAR* WideNativePath = *FullPath;
+	// const char* NativePath = TCHAR_TO_ANSI(WideNativePath);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetHumanPointsFromFile: Native Path via FString = %s"), *FString(WideNativePath));
+
+	FLatLon TopLeft, BottomRight;
+	TArray<FHumanMissionPointNative> PointsNative = GetHumanPointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
+
+	return FHumanMissionPointList(Path, HumanNativePointsToPoints(PointsNative), TopLeft, BottomRight);
+}
+
 /* Get native points from file */
 
 TArray<FMissionPointNative> UKulaginStatics::GetPointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight)
@@ -808,6 +840,114 @@ TArray<FPlaneMissionPointNative> UKulaginStatics::GetPlanePointsNativeFromFile(c
 	return Points;
 }
 
+TArray<FCarMissionPointNative> UKulaginStatics::GetCarPointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight)
+{
+	std::fstream FileStream;
+
+	FileStream.open(Path, std::fstream::in | std::fstream::binary);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetCarPointsNativeFromFile: FileStream %s"), FileStream.is_open() ? *FString("OPENED") : *FString("CLOSED"));
+
+	if (FileStream.is_open() == false)
+		return {};
+
+	FileStream.seekg(0, FileStream.end);
+	int32 Length = FileStream.tellg();
+	FileStream.seekg(0, FileStream.beg);
+
+	FCarMissionPointNative BlankPoint;
+
+	int32 PointsCount = Length / BlankPoint.GetSize();
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetCarPointsNativeFromFile: PointsCount = %i"), PointsCount);
+
+	if (PointsCount <= 0)
+		return {};
+
+	TArray<FCarMissionPointNative> Points;
+
+	double MaxLat = -95., MaxLon = -185., MinLat = 95., MinLon = 185.;
+
+	for (int32 i = 0; i < PointsCount; i++)
+	{
+		FileStream.read((char*)&BlankPoint.Lat, sizeof(BlankPoint.Lat));
+		FileStream.read((char*)&BlankPoint.Lon, sizeof(BlankPoint.Lon));
+		FileStream.read((char*)&BlankPoint.Alt, sizeof(BlankPoint.Alt));
+		FileStream.read((char*)&BlankPoint.Time, sizeof(BlankPoint.Time));
+
+		MaxLat = FMath::Max<double>(MaxLat, BlankPoint.Lat);
+		MaxLon = FMath::Max<double>(MaxLon, BlankPoint.Lon);
+		MinLat = FMath::Min<double>(MinLat, BlankPoint.Lat);
+		MinLon = FMath::Min<double>(MinLon, BlankPoint.Lon);
+
+		Points.Add(BlankPoint);
+	}
+
+	FileStream.close();
+
+	TopLeft.Lat = MaxLat;
+	TopLeft.Lon = MinLon;
+
+	BottomRight.Lat = MinLat;
+	BottomRight.Lon = MaxLon;
+
+	return Points;
+}
+
+TArray<FHumanMissionPointNative> UKulaginStatics::GetHumanPointsNativeFromFile(const TCHAR* Path, FLatLon &TopLeft, FLatLon &BottomRight)
+{
+	std::fstream FileStream;
+
+	FileStream.open(Path, std::fstream::in | std::fstream::binary);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetHumanPointsNativeFromFile: FileStream %s"), FileStream.is_open() ? *FString("OPENED") : *FString("CLOSED"));
+
+	if (FileStream.is_open() == false)
+		return {};
+
+	FileStream.seekg(0, FileStream.end);
+	int32 Length = FileStream.tellg();
+	FileStream.seekg(0, FileStream.beg);
+
+	FHumanMissionPointNative BlankPoint;
+
+	int32 PointsCount = Length / BlankPoint.GetSize();
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetHumanPointsNativeFromFile: PointsCount = %i"), PointsCount);
+
+	if (PointsCount <= 0)
+		return {};
+
+	TArray<FHumanMissionPointNative> Points;
+
+	double MaxLat = -95., MaxLon = -185., MinLat = 95., MinLon = 185.;
+
+	for (int32 i = 0; i < PointsCount; i++)
+	{
+		FileStream.read((char*)&BlankPoint.Lat, sizeof(BlankPoint.Lat));
+		FileStream.read((char*)&BlankPoint.Lon, sizeof(BlankPoint.Lon));
+		FileStream.read((char*)&BlankPoint.Alt, sizeof(BlankPoint.Alt));
+		FileStream.read((char*)&BlankPoint.Time, sizeof(BlankPoint.Time));
+
+		MaxLat = FMath::Max<double>(MaxLat, BlankPoint.Lat);
+		MaxLon = FMath::Max<double>(MaxLon, BlankPoint.Lon);
+		MinLat = FMath::Min<double>(MinLat, BlankPoint.Lat);
+		MinLon = FMath::Min<double>(MinLon, BlankPoint.Lon);
+
+		Points.Add(BlankPoint);
+	}
+
+	FileStream.close();
+
+	TopLeft.Lat = MaxLat;
+	TopLeft.Lon = MinLon;
+
+	BottomRight.Lat = MinLat;
+	BottomRight.Lon = MaxLon;
+
+	return Points;
+}
+
 /* Save point to file */
 
 bool UKulaginStatics::SavePointsToFile(FBinaryFilePath Path, TArray<FMissionPoint> Points)
@@ -852,6 +992,54 @@ bool UKulaginStatics::SavePlanePointsToFile(FBinaryFilePath Path, TArray<FPlaneM
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SavePlanePointsToFile: Native Path via FString = %s"), *FString(WideNativePath));
 
 	const bool Result = SavePlanePointsNativeToFile(WideNativePath, PlanePointsToNativePoints(Points));
+
+	//IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+
+	return Result;
+}
+
+bool UKulaginStatics::SaveCarPointsToFile(FBinaryFilePath Path, TArray<FCarMissionPoint> Points)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SaveCarPointsToFile: Path = %s"), *Path.GetFullPath());
+
+	if (Path.PathOnly.IsEmpty())
+#if WITH_EDITOR
+		Path.PathOnly = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir());
+#else
+		Path.PathOnly = FPaths::ConvertRelativePathToFull(FPaths::RootDir());
+#endif
+
+	const FString FullPath = Path.GetFullPath();
+	const TCHAR* WideNativePath = *FullPath;
+	//const char* NativePath = TCHAR_TO_ANSI(WideNativePath);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SaveCarPointsToFile: Native Path via FString = %s"), *FString(WideNativePath));
+
+	const bool Result = SaveCarPointsNativeToFile(WideNativePath, CarPointsToNativePoints(Points));
+
+	//IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+
+	return Result;
+}
+
+bool UKulaginStatics::SaveHumanPointsToFile(FBinaryFilePath Path, TArray<FHumanMissionPoint> Points)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SaveHumanPointsToFile: Path = %s"), *Path.GetFullPath());
+
+	if (Path.PathOnly.IsEmpty())
+#if WITH_EDITOR
+		Path.PathOnly = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir());
+#else
+		Path.PathOnly = FPaths::ConvertRelativePathToFull(FPaths::RootDir());
+#endif
+
+	const FString FullPath = Path.GetFullPath();
+	const TCHAR* WideNativePath = *FullPath;
+	//const char* NativePath = TCHAR_TO_ANSI(WideNativePath);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SaveHumanPointsToFile: Native Path via FString = %s"), *FString(WideNativePath));
+
+	const bool Result = SaveHumanPointsNativeToFile(WideNativePath, HumanPointsToNativePoints(Points));
 
 	//IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
 
@@ -922,6 +1110,54 @@ bool UKulaginStatics::SavePlanePointsNativeToFile(const TCHAR* Path, TArray<FPla
 	return true;
 }
 
+bool UKulaginStatics::SaveCarPointsNativeToFile(const TCHAR* Path, TArray<FCarMissionPointNative> PointsNative)
+{
+	std::fstream FileStream;
+
+	FileStream.open(Path, std::fstream::out | std::fstream::binary);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SaveCarPointsNativeToFile: FileStream %s"), FileStream.is_open() ? *FString("OPENED") : *FString("CLOSED"));
+
+	if (!FileStream.is_open())
+		return false;
+
+	for (FCarMissionPointNative CurrentNativePoint : PointsNative)
+	{
+		FileStream.write((char*)&CurrentNativePoint.Lat, sizeof(CurrentNativePoint.Lat));
+		FileStream.write((char*)&CurrentNativePoint.Lon, sizeof(CurrentNativePoint.Lon));
+		FileStream.write((char*)&CurrentNativePoint.Alt, sizeof(CurrentNativePoint.Alt));
+		FileStream.write((char*)&CurrentNativePoint.Time, sizeof(CurrentNativePoint.Time));
+	}
+
+	FileStream.close();
+
+	return true;
+}
+
+bool UKulaginStatics::SaveHumanPointsNativeToFile(const TCHAR* Path, TArray<FHumanMissionPointNative> PointsNative)
+{
+	std::fstream FileStream;
+
+	FileStream.open(Path, std::fstream::out | std::fstream::binary);
+
+	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SaveHumanPointsNativeToFile: FileStream %s"), FileStream.is_open() ? *FString("OPENED") : *FString("CLOSED"));
+
+	if (!FileStream.is_open())
+		return false;
+
+	for (FHumanMissionPointNative CurrentNativePoint : PointsNative)
+	{
+		FileStream.write((char*)&CurrentNativePoint.Lat, sizeof(CurrentNativePoint.Lat));
+		FileStream.write((char*)&CurrentNativePoint.Lon, sizeof(CurrentNativePoint.Lon));
+		FileStream.write((char*)&CurrentNativePoint.Alt, sizeof(CurrentNativePoint.Alt));
+		FileStream.write((char*)&CurrentNativePoint.Time, sizeof(CurrentNativePoint.Time));
+	}
+
+	FileStream.close();
+
+	return true;
+}
+
 /* Native points to points */
 
 TArray<FMissionPoint> UKulaginStatics::NativePointsToPoints(TArray<FMissionPointNative> PointsNative)
@@ -940,6 +1176,26 @@ TArray<FPlaneMissionPoint> UKulaginStatics::PlaneNativePointsToPoints(TArray<FPl
 	for (FPlaneMissionPointNative CurrentPointNative : PointsNative)
 	{
 		TempPoints.Add(FPlaneMissionPoint(CurrentPointNative));
+	}
+	return TempPoints;
+}
+
+TArray<FCarMissionPoint> UKulaginStatics::CarNativePointsToPoints(TArray<FCarMissionPointNative> PointsNative)
+{
+	TArray<FCarMissionPoint> TempPoints;
+	for (FCarMissionPointNative CurrentPointNative : PointsNative)
+	{
+		TempPoints.Add(FCarMissionPoint(CurrentPointNative));
+	}
+	return TempPoints;
+}
+
+TArray<FHumanMissionPoint> UKulaginStatics::HumanNativePointsToPoints(TArray<FHumanMissionPointNative> PointsNative)
+{
+	TArray<FHumanMissionPoint> TempPoints;
+	for (FHumanMissionPointNative CurrentPointNative : PointsNative)
+	{
+		TempPoints.Add(FHumanMissionPoint(CurrentPointNative));
 	}
 	return TempPoints;
 }
@@ -966,6 +1222,26 @@ TArray<FPlaneMissionPointNative> UKulaginStatics::PlanePointsToNativePoints(TArr
 	return TempPointsNative;
 }
 
+TArray<FCarMissionPointNative> UKulaginStatics::CarPointsToNativePoints(TArray<FCarMissionPoint> Points)
+{
+	TArray<FCarMissionPointNative> TempPointsNative;
+	for (FCarMissionPoint CurrentPoint : Points)
+	{
+		TempPointsNative.Add(FCarMissionPointNative(CurrentPoint));
+	}
+	return TempPointsNative;
+}
+
+TArray<FHumanMissionPointNative> UKulaginStatics::HumanPointsToNativePoints(TArray<FHumanMissionPoint> Points)
+{
+	TArray<FHumanMissionPointNative> TempPointsNative;
+	for (FHumanMissionPoint CurrentPoint : Points)
+	{
+		TempPointsNative.Add(FHumanMissionPointNative(CurrentPoint));
+	}
+	return TempPointsNative;
+}
+
 /* Add offset to point array */
 
 void UKulaginStatics::AddMissionPointsOffset(UPARAM(ref) TArray<FMissionPoint> &Points, FVector Offset)
@@ -984,6 +1260,22 @@ void UKulaginStatics::AddPlaneMissionPointsOffset(UPARAM(ref) TArray<FPlaneMissi
 	}
 }
 
+void UKulaginStatics::AddCarMissionPointsOffset(UPARAM(ref) TArray<FCarMissionPoint> &Points, FVector Offset)
+{
+	for (FCarMissionPoint &CurrentPoint : Points)
+	{
+		AddCarMissionPointOffset(CurrentPoint, Offset);
+	}
+}
+
+void UKulaginStatics::AddHumanMissionPointsOffset(UPARAM(ref) TArray<FHumanMissionPoint> &Points, FVector Offset)
+{
+	for (FHumanMissionPoint &CurrentPoint : Points)
+	{
+		AddHumanMissionPointOffset(CurrentPoint, Offset);
+	}
+}
+
 /* Add offset to point */
 
 void UKulaginStatics::AddMissionPointOffset(UPARAM(ref) FMissionPoint &Point, FVector Offset)
@@ -996,6 +1288,18 @@ void UKulaginStatics::AddPlaneMissionPointOffset(UPARAM(ref) FPlaneMissionPoint 
 {
 	const FVector TargetLoc = PlaneMissionPointToUE(Point, 0.f) + Offset;
 	UEToPlaneMissionPoint(Point, TargetLoc, 0.f);
+}
+
+void UKulaginStatics::AddCarMissionPointOffset(UPARAM(ref) FCarMissionPoint &Point, FVector Offset)
+{
+	const FVector TargetLoc = CarMissionPointToUE(Point, 0.f) + Offset;
+	UEToCarMissionPoint(Point, TargetLoc, 0.f);
+}
+
+void UKulaginStatics::AddHumanMissionPointOffset(UPARAM(ref) FHumanMissionPoint &Point, FVector Offset)
+{
+	const FVector TargetLoc = HumanMissionPointToUE(Point, 0.f) + Offset;
+	UEToHumanMissionPoint(Point, TargetLoc, 0.f);
 }
 
 double UKulaginStatics::GetValidDoubleFromString(FString Str)
@@ -1107,6 +1411,16 @@ FVector UKulaginStatics::PlaneMissionPointToUE(const FPlaneMissionPoint &Point, 
 	return WGS84ToUE(Point.LatLon.Lat, Reference.LatReference, Point.LatLon.Lon, Reference.LonReference, Point.Alt, StartAlt);
 }
 
+FVector UKulaginStatics::CarMissionPointToUE(const FCarMissionPoint &Point, float StartAlt)
+{
+	return WGS84ToUE(Point.LatLon.Lat, Reference.LatReference, Point.LatLon.Lon, Reference.LonReference, Point.Alt, StartAlt);
+}
+
+FVector UKulaginStatics::HumanMissionPointToUE(const FHumanMissionPoint &Point, float StartAlt)
+{
+	return WGS84ToUE(Point.LatLon.Lat, Reference.LatReference, Point.LatLon.Lon, Reference.LonReference, Point.Alt, StartAlt);
+}
+
 FVector UKulaginStatics::WGS84ToUE(double Lat, double LatReference, double Lon, double LonReference, float Alt, float StartAlt)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: WGS84ToUE: v5"));
@@ -1146,6 +1460,16 @@ void UKulaginStatics::UEToLogPoint(FLogPoint &Point, FVector Loc, float StartAlt
 }
 
 void UKulaginStatics::UEToPlaneMissionPoint(FPlaneMissionPoint &Point, FVector Loc, float StartAlt)
+{
+	UEToWGS84(Loc, Point.LatLon.Lat, Reference.LatReference, Point.LatLon.Lon, Reference.LonReference, Point.Alt, StartAlt);
+}
+
+void UKulaginStatics::UEToCarMissionPoint(FCarMissionPoint &Point, FVector Loc, float StartAlt)
+{
+	UEToWGS84(Loc, Point.LatLon.Lat, Reference.LatReference, Point.LatLon.Lon, Reference.LonReference, Point.Alt, StartAlt);
+}
+
+void UKulaginStatics::UEToHumanMissionPoint(FHumanMissionPoint &Point, FVector Loc, float StartAlt)
 {
 	UEToWGS84(Loc, Point.LatLon.Lat, Reference.LatReference, Point.LatLon.Lon, Reference.LonReference, Point.Alt, StartAlt);
 }
