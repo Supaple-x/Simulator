@@ -206,25 +206,12 @@ public:
 
 	static bool SaveHumanPointsNativeToFile(const TCHAR* Path, TArray<FHumanMissionPointNative> PointsNative);
 
-	/* Native points to points */
-
-	static TArray<FMissionPoint> NativePointsToPoints(TArray<FMissionPointNative> PointsNative);
-
-	static TArray<FPlaneMissionPoint> PlaneNativePointsToPoints(TArray<FPlaneMissionPointNative> PointsNative);
-
-	static TArray<FCarMissionPoint> CarNativePointsToPoints(TArray<FCarMissionPointNative> PointsNative);
-
-	static TArray<FHumanMissionPoint> HumanNativePointsToPoints(TArray<FHumanMissionPointNative> PointsNative);
-
-	/* Points to native points */
-
-	static TArray<FMissionPointNative> PointsToNativePoints(TArray<FMissionPoint> Points);
-
-	static TArray<FPlaneMissionPointNative> PlanePointsToNativePoints(TArray<FPlaneMissionPoint> Points);
-
-	static TArray<FCarMissionPointNative> CarPointsToNativePoints(TArray<FCarMissionPoint> Points);
-
-	static TArray<FHumanMissionPointNative> HumanPointsToNativePoints(TArray<FHumanMissionPoint> Points);
+	/*
+	 * Native points to points or back
+	 * Usage: CovertPoints<ClassToCovert>(Array) 
+	 */
+	template<class Out, class In>
+	static TArray<Out> ConvertPoints(TArray<In> PointsNative);
 
 	/* Add offset to point array */
 

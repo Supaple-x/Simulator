@@ -665,7 +665,7 @@ FMissionPointList UKulaginStatics::GetPointsFromFile(FBinaryFilePath Path)
 	FLatLon TopLeft, BottomRight;
 	TArray<FMissionPointNative> PointsNative = GetPointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
 
-	return FMissionPointList(Path, NativePointsToPoints(PointsNative), TopLeft, BottomRight);
+	return FMissionPointList(Path, ConvertPoints<FMissionPoint>(PointsNative), TopLeft, BottomRight);
 }
 
 FPlaneMissionPointList UKulaginStatics::GetPlanePointsFromFile(FBinaryFilePath Path)
@@ -681,7 +681,7 @@ FPlaneMissionPointList UKulaginStatics::GetPlanePointsFromFile(FBinaryFilePath P
 	FLatLon TopLeft, BottomRight;
 	TArray<FPlaneMissionPointNative> PointsNative = GetPlanePointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
 
-	return FPlaneMissionPointList(Path, PlaneNativePointsToPoints(PointsNative), TopLeft, BottomRight);
+	return FPlaneMissionPointList(Path, ConvertPoints<FPlaneMissionPoint>(PointsNative), TopLeft, BottomRight);
 }
 
 FCarMissionPointList UKulaginStatics::GetCarPointsFromFile(FBinaryFilePath Path)
@@ -697,7 +697,7 @@ FCarMissionPointList UKulaginStatics::GetCarPointsFromFile(FBinaryFilePath Path)
 	FLatLon TopLeft, BottomRight;
 	TArray<FCarMissionPointNative> PointsNative = GetCarPointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
 
-	return FCarMissionPointList(Path, CarNativePointsToPoints(PointsNative), TopLeft, BottomRight);
+	return FCarMissionPointList(Path, ConvertPoints<FCarMissionPoint>(PointsNative), TopLeft, BottomRight);
 }
 
 FHumanMissionPointList UKulaginStatics::GetHumanPointsFromFile(FBinaryFilePath Path)
@@ -713,7 +713,7 @@ FHumanMissionPointList UKulaginStatics::GetHumanPointsFromFile(FBinaryFilePath P
 	FLatLon TopLeft, BottomRight;
 	TArray<FHumanMissionPointNative> PointsNative = GetHumanPointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
 
-	return FHumanMissionPointList(Path, HumanNativePointsToPoints(PointsNative), TopLeft, BottomRight);
+	return FHumanMissionPointList(Path, ConvertPoints<FHumanMissionPoint>(PointsNative), TopLeft, BottomRight);
 }
 
 /* Get native points from file */
@@ -967,7 +967,7 @@ bool UKulaginStatics::SavePointsToFile(FBinaryFilePath Path, TArray<FMissionPoin
 
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SavePointsToFile: Native Path via FString = %s"), *FString(WideNativePath));
 
-	const bool Result = SavePointsNativeToFile(WideNativePath, PointsToNativePoints(Points));
+	const bool Result = SavePointsNativeToFile(WideNativePath, ConvertPoints<FMissionPointNative>(Points));
 
 	//IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
 
@@ -991,7 +991,7 @@ bool UKulaginStatics::SavePlanePointsToFile(FBinaryFilePath Path, TArray<FPlaneM
 
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SavePlanePointsToFile: Native Path via FString = %s"), *FString(WideNativePath));
 
-	const bool Result = SavePlanePointsNativeToFile(WideNativePath, PlanePointsToNativePoints(Points));
+	const bool Result = SavePlanePointsNativeToFile(WideNativePath, ConvertPoints<FPlaneMissionPointNative>(Points));
 
 	//IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
 
@@ -1015,7 +1015,7 @@ bool UKulaginStatics::SaveCarPointsToFile(FBinaryFilePath Path, TArray<FCarMissi
 
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SaveCarPointsToFile: Native Path via FString = %s"), *FString(WideNativePath));
 
-	const bool Result = SaveCarPointsNativeToFile(WideNativePath, CarPointsToNativePoints(Points));
+	const bool Result = SaveCarPointsNativeToFile(WideNativePath, ConvertPoints<FCarMissionPointNative>(Points));
 
 	//IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
 
@@ -1039,7 +1039,7 @@ bool UKulaginStatics::SaveHumanPointsToFile(FBinaryFilePath Path, TArray<FHumanM
 
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: SaveHumanPointsToFile: Native Path via FString = %s"), *FString(WideNativePath));
 
-	const bool Result = SaveHumanPointsNativeToFile(WideNativePath, HumanPointsToNativePoints(Points));
+	const bool Result = SaveHumanPointsNativeToFile(WideNativePath, ConvertPoints<FHumanMissionPointNative>(Points));
 
 	//IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
 
@@ -1158,88 +1158,17 @@ bool UKulaginStatics::SaveHumanPointsNativeToFile(const TCHAR* Path, TArray<FHum
 	return true;
 }
 
-/* Native points to points */
+/* Native points to points or back */
 
-TArray<FMissionPoint> UKulaginStatics::NativePointsToPoints(TArray<FMissionPointNative> PointsNative)
+template<class Out, class In>
+TArray<Out> UKulaginStatics::ConvertPoints(TArray<In> PointsNative)
 {
-	TArray<FMissionPoint> TempPoints;
-	for (FMissionPointNative CurrentPointNative : PointsNative)
+	TArray<Out> TempPoints;
+	for (const In &CurrentPointNative : PointsNative)
 	{
-		TempPoints.Add(FMissionPoint(CurrentPointNative));
+		TempPoints.Add(Out(CurrentPointNative));
 	}
 	return TempPoints;
-}
-
-TArray<FPlaneMissionPoint> UKulaginStatics::PlaneNativePointsToPoints(TArray<FPlaneMissionPointNative> PointsNative)
-{
-	TArray<FPlaneMissionPoint> TempPoints;
-	for (FPlaneMissionPointNative CurrentPointNative : PointsNative)
-	{
-		TempPoints.Add(FPlaneMissionPoint(CurrentPointNative));
-	}
-	return TempPoints;
-}
-
-TArray<FCarMissionPoint> UKulaginStatics::CarNativePointsToPoints(TArray<FCarMissionPointNative> PointsNative)
-{
-	TArray<FCarMissionPoint> TempPoints;
-	for (FCarMissionPointNative CurrentPointNative : PointsNative)
-	{
-		TempPoints.Add(FCarMissionPoint(CurrentPointNative));
-	}
-	return TempPoints;
-}
-
-TArray<FHumanMissionPoint> UKulaginStatics::HumanNativePointsToPoints(TArray<FHumanMissionPointNative> PointsNative)
-{
-	TArray<FHumanMissionPoint> TempPoints;
-	for (FHumanMissionPointNative CurrentPointNative : PointsNative)
-	{
-		TempPoints.Add(FHumanMissionPoint(CurrentPointNative));
-	}
-	return TempPoints;
-}
-
-/* Points to native points */
-
-TArray<FMissionPointNative> UKulaginStatics::PointsToNativePoints(TArray<FMissionPoint> Points)
-{
-	TArray<FMissionPointNative> TempPointsNative;
-	for (FMissionPoint CurrentPoint : Points)
-	{
-		TempPointsNative.Add(FMissionPointNative(CurrentPoint));
-	}
-	return TempPointsNative;
-}
-
-TArray<FPlaneMissionPointNative> UKulaginStatics::PlanePointsToNativePoints(TArray<FPlaneMissionPoint> Points)
-{
-	TArray<FPlaneMissionPointNative> TempPointsNative;
-	for (FPlaneMissionPoint CurrentPoint : Points)
-	{
-		TempPointsNative.Add(FPlaneMissionPointNative(CurrentPoint));
-	}
-	return TempPointsNative;
-}
-
-TArray<FCarMissionPointNative> UKulaginStatics::CarPointsToNativePoints(TArray<FCarMissionPoint> Points)
-{
-	TArray<FCarMissionPointNative> TempPointsNative;
-	for (FCarMissionPoint CurrentPoint : Points)
-	{
-		TempPointsNative.Add(FCarMissionPointNative(CurrentPoint));
-	}
-	return TempPointsNative;
-}
-
-TArray<FHumanMissionPointNative> UKulaginStatics::HumanPointsToNativePoints(TArray<FHumanMissionPoint> Points)
-{
-	TArray<FHumanMissionPointNative> TempPointsNative;
-	for (FHumanMissionPoint CurrentPoint : Points)
-	{
-		TempPointsNative.Add(FHumanMissionPointNative(CurrentPoint));
-	}
-	return TempPointsNative;
 }
 
 /* Add offset to point array */
