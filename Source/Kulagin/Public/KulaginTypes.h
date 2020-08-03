@@ -66,6 +66,34 @@ struct FPlaneMissionPointNative
 	FPlaneMissionPointNative(struct FPlaneMissionPoint Point);
 };
 
+struct FCarMissionPointNative
+{
+	double   Lat;
+	double   Lon;
+	float    Alt;
+	float	 Time;
+
+	int32 GetSize() const;
+
+	FCarMissionPointNative();
+
+	FCarMissionPointNative(struct FCarMissionPoint Point);
+};
+
+struct FHumanMissionPointNative
+{
+	double   Lat;
+	double   Lon;
+	float    Alt;
+	float	 Time;
+
+	int32 GetSize() const;
+
+	FHumanMissionPointNative();
+
+	FHumanMissionPointNative(struct FHumanMissionPoint Point);
+};
+
 UENUM(BlueprintType)
 enum class ESceneType : uint8
 {
@@ -121,7 +149,9 @@ enum class EPointContainerType : uint8
 	PCT_Mission				UMETA(DisplayName = "Mission"),
 	PCT_Log					UMETA(DisplayName = "Log"),
 	PCT_Orient				UMETA(DisplayName = "Orient"),
-	PCT_PlaneMission		UMETA(DisplayName = "Plane Mission")
+	PCT_PlaneMission		UMETA(DisplayName = "Plane Mission"),
+	PCT_CarMission			UMETA(DisplayName = "Car Mission"),
+	PCT_HymanMission		UMETA(DisplayName = "Human Mission")
 };
 
 UENUM(BlueprintType)
@@ -251,6 +281,34 @@ struct FPlaneMissionPoint
 	FPlaneMissionPoint();
 
 	FPlaneMissionPoint(FPlaneMissionPointNative NativePoint);
+};
+
+USTRUCT(BlueprintType)
+struct FCarMissionPoint
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)	FLatLon  LatLon;
+	UPROPERTY(BlueprintReadWrite)	float    Alt;
+	UPROPERTY(BlueprintReadWrite)	float    Time;
+
+	FCarMissionPoint();
+
+	FCarMissionPoint(FCarMissionPointNative NativePoint);
+};
+
+USTRUCT(BlueprintType)
+struct FHumanMissionPoint
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)	FLatLon  LatLon;
+	UPROPERTY(BlueprintReadWrite)	float    Alt;
+	UPROPERTY(BlueprintReadWrite)	float    Time;
+
+	FHumanMissionPoint();
+
+	FHumanMissionPoint(FHumanMissionPointNative NativePoint);
 };
 
 USTRUCT(BlueprintType)
@@ -440,6 +498,38 @@ struct FPlaneMissionPointList
 		: FilePath(FilePathIn), Points(PointsIn), TopLeft(TopLeftIn), BottomRight(BottomRightIn) {};
 
 	FPlaneMissionPointList() : FilePath(), Points(), TopLeft(), BottomRight() {};
+};
+
+USTRUCT(BlueprintType)
+struct FCarMissionPointList
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite) FBinaryFilePath FilePath;
+	UPROPERTY(BlueprintReadWrite) TArray<FCarMissionPoint> Points;
+	UPROPERTY(BlueprintReadWrite) FLatLon TopLeft;
+	UPROPERTY(BlueprintReadWrite) FLatLon BottomRight;
+
+	FCarMissionPointList(FBinaryFilePath FilePathIn, TArray<FCarMissionPoint> PointsIn, FLatLon TopLeftIn, FLatLon BottomRightIn)
+		: FilePath(FilePathIn), Points(PointsIn), TopLeft(TopLeftIn), BottomRight(BottomRightIn) {};
+
+	FCarMissionPointList() : FilePath(), Points(), TopLeft(), BottomRight() {};
+};
+
+USTRUCT(BlueprintType)
+struct FHumanMissionPointList
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite) FBinaryFilePath FilePath;
+	UPROPERTY(BlueprintReadWrite) TArray<FHumanMissionPoint> Points;
+	UPROPERTY(BlueprintReadWrite) FLatLon TopLeft;
+	UPROPERTY(BlueprintReadWrite) FLatLon BottomRight;
+
+	FHumanMissionPointList(FBinaryFilePath FilePathIn, TArray<FHumanMissionPoint> PointsIn, FLatLon TopLeftIn, FLatLon BottomRightIn)
+		: FilePath(FilePathIn), Points(PointsIn), TopLeft(TopLeftIn), BottomRight(BottomRightIn) {};
+
+	FHumanMissionPointList() : FilePath(), Points(), TopLeft(), BottomRight() {};
 };
 
 USTRUCT(BlueprintType)

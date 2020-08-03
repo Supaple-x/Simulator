@@ -89,6 +89,73 @@ FPlaneMissionPointNative::FPlaneMissionPointNative()
 	Time = 0.f;
 }
 
+FPlaneMissionPointNative::FPlaneMissionPointNative(FPlaneMissionPoint Point)
+{
+	Lat = Point.LatLon.Lat;
+	Lon = Point.LatLon.Lon;
+	Alt = Point.Alt;
+	Time = Point.Time;
+}
+
+int32 FPlaneMissionPointNative::GetSize() const
+{
+	int32 TotalSize = sizeof(Lat);
+	TotalSize += sizeof(Lon);
+	TotalSize += sizeof(Alt);
+	TotalSize += sizeof(Time);
+	return TotalSize;
+}
+
+FCarMissionPointNative::FCarMissionPointNative()
+{
+	Lat = 0.;
+	Lon = 0.;
+	Alt = 0.f;
+	Time = 0.f;
+}
+
+FCarMissionPointNative::FCarMissionPointNative(FCarMissionPoint Point)
+{
+	Lat = Point.LatLon.Lat;
+	Lon = Point.LatLon.Lon;
+	Alt = Point.Alt;
+	Time = Point.Time;
+}
+
+int32 FCarMissionPointNative::GetSize() const
+{
+	int32 TotalSize = sizeof(Lat);
+	TotalSize += sizeof(Lon);
+	TotalSize += sizeof(Alt);
+	TotalSize += sizeof(Time);
+	return TotalSize;
+}
+
+FHumanMissionPointNative::FHumanMissionPointNative()
+{
+	Lat = 0.;
+	Lon = 0.;
+	Alt = 0.f;
+	Time = 0.f;
+}
+
+FHumanMissionPointNative::FHumanMissionPointNative(FHumanMissionPoint Point)
+{
+	Lat = Point.LatLon.Lat;
+	Lon = Point.LatLon.Lon;
+	Alt = Point.Alt;
+	Time = Point.Time;
+}
+
+int32 FHumanMissionPointNative::GetSize() const
+{
+	int32 TotalSize = sizeof(Lat);
+	TotalSize += sizeof(Lon);
+	TotalSize += sizeof(Alt);
+	TotalSize += sizeof(Time);
+	return TotalSize;
+}
+
 FMissionPoint::FMissionPoint()
 {
 	TargetLatLon = FLatLon(0., 0.);
@@ -132,23 +199,6 @@ FMissionPoint::FMissionPoint(FMissionPointNative NativePoint)
 	type = ENaviPointType(NativePoint.type);
 }
 
-FPlaneMissionPointNative::FPlaneMissionPointNative(FPlaneMissionPoint Point)
-{
-	Lat = Point.LatLon.Lat;
-	Lon = Point.LatLon.Lon;
-	Alt = Point.Alt;
-	Time = Point.Time;
-}
-
-int32 FPlaneMissionPointNative::GetSize() const
-{
-	int32 TotalSize = sizeof(Lat);
-	TotalSize += sizeof(Lon);
-	TotalSize += sizeof(Alt);
-	TotalSize += sizeof(Time);
-	return TotalSize;
-}
-
 FPlaneMissionPoint::FPlaneMissionPoint()
 {
 	LatLon = FLatLon();
@@ -157,6 +207,34 @@ FPlaneMissionPoint::FPlaneMissionPoint()
 }
 
 FPlaneMissionPoint::FPlaneMissionPoint(FPlaneMissionPointNative NativePoint)
+{
+	LatLon = FLatLon(NativePoint.Lat, NativePoint.Lon);
+	Alt = NativePoint.Alt;
+	Time = NativePoint.Time;
+}
+
+FCarMissionPoint::FCarMissionPoint()
+{
+	LatLon = FLatLon();
+	Alt = 0.f;
+	Time = 0.f;
+}
+
+FCarMissionPoint::FCarMissionPoint(FCarMissionPointNative NativePoint)
+{
+	LatLon = FLatLon(NativePoint.Lat, NativePoint.Lon);
+	Alt = NativePoint.Alt;
+	Time = NativePoint.Time;
+}
+
+FHumanMissionPoint::FHumanMissionPoint()
+{
+	LatLon = FLatLon();
+	Alt = 0.f;
+	Time = 0.f;
+}
+
+FHumanMissionPoint::FHumanMissionPoint(FHumanMissionPointNative NativePoint)
 {
 	LatLon = FLatLon(NativePoint.Lat, NativePoint.Lon);
 	Alt = NativePoint.Alt;
