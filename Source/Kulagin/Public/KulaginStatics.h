@@ -164,13 +164,13 @@ public:
 	static FMissionPointList GetPointsFromFile(FBinaryFilePath Path);
 
 	UFUNCTION(BlueprintCallable)
-	static FPlaneMissionPointList GetPlanePointsFromFile(FBinaryFilePath Path);
+	static FMissionPointList GetPlanePointsFromFile(FBinaryFilePath Path);
 
 	UFUNCTION(BlueprintCallable)
-	static FCarMissionPointList GetCarPointsFromFile(FBinaryFilePath Path);
+	static FMissionPointList GetCarPointsFromFile(FBinaryFilePath Path);
 
 	UFUNCTION(BlueprintCallable)
-	static FHumanMissionPointList GetHumanPointsFromFile(FBinaryFilePath Path);
+	static FMissionPointList GetHumanPointsFromFile(FBinaryFilePath Path);
 
 	/* Get native points from file */
 
@@ -345,5 +345,14 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static int32 GetZoomMaxIndex();
+
+	UFUNCTION(BlueprintPure)
+	static FString GetFileExtension(const EPointContainerType& Type);
+
+	UFUNCTION(BlueprintPure)
+	static int32 GetListLength(const FMissionPointList& List) { return List.Length(); };
+
+	UFUNCTION(BlueprintPure)
+	static FLatLon GetListLatLon(const FMissionPointList& List, const int32 Index) { return List.GetLanLon(Index); };
 
 };

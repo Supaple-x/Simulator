@@ -405,6 +405,30 @@ float UMapperHeighmap::GetHeigh(const float PercentageX, const float PercentageY
 	return (TopLerp + RightLerp + BotLerp + LeftLerp) * 0.25f;
 }
 
+int32 FMissionPointList::Length() const
+{
+	switch (Type)
+	{
+	case EPointContainerType::PCT_Mission: return DronePoints.Num();
+	case EPointContainerType::PCT_PlaneMission: return PlanePoints.Num();
+	case EPointContainerType::PCT_CarMission: return CarPoints.Num();
+	case EPointContainerType::PCT_HumanMission: return HumanPoints.Num();
+	}
+	return 0;
+}
+
+FLatLon FMissionPointList::GetLanLon(const int32 Index) const
+{
+	switch (Type)
+	{
+	case EPointContainerType::PCT_Mission: return DronePoints.IsValidIndex(Index) ? DronePoints[Index].TargetLatLon : FLatLon::TopLeft;
+	case EPointContainerType::PCT_PlaneMission: return PlanePoints.IsValidIndex(Index) ? PlanePoints[Index].LatLon : FLatLon::TopLeft;
+	case EPointContainerType::PCT_CarMission: return CarPoints.IsValidIndex(Index) ? CarPoints[Index].LatLon : FLatLon::TopLeft;
+	case EPointContainerType::PCT_HumanMission: return HumanPoints.IsValidIndex(Index) ? HumanPoints[Index].LatLon : FLatLon::TopLeft;
+	}
+	return FLatLon::TopLeft;
+}
+
 bool FDroneData::IsValid() const
 {
 	// speeds check

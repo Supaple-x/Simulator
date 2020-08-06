@@ -45,4 +45,12 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	float StartAlt;
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool SetDataFromList(const FMissionPointList& List, const int32 Index);
+	virtual bool SetDataFromList_Implementation(const FMissionPointList& List, const int32 Index);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool SetDataFromPoint(AMapperPointBase* Point);
+	virtual bool SetDataFromPoint_Implementation(AMapperPointBase* Point);
+
 };

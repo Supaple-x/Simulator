@@ -94,3 +94,13 @@ bool AMapperPointBase::UpdateActorFromData_Implementation()
 {
 	return false;
 }
+
+bool AMapperPointBase::SetDataFromList_Implementation(const FMissionPointList& List, const int32 Index)
+{
+	return false;
+}
+
+bool AMapperPointBase::SetDataFromPoint_Implementation(AMapperPointBase* Point)
+{
+	return false;
+}

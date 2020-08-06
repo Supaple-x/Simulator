@@ -668,7 +668,7 @@ FMissionPointList UKulaginStatics::GetPointsFromFile(FBinaryFilePath Path)
 	return FMissionPointList(Path, ConvertPoints<FMissionPoint>(PointsNative), TopLeft, BottomRight);
 }
 
-FPlaneMissionPointList UKulaginStatics::GetPlanePointsFromFile(FBinaryFilePath Path)
+FMissionPointList UKulaginStatics::GetPlanePointsFromFile(FBinaryFilePath Path)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetPlanePointsFromFile: Path = %s"), *Path.GetFullPath());
 
@@ -681,10 +681,10 @@ FPlaneMissionPointList UKulaginStatics::GetPlanePointsFromFile(FBinaryFilePath P
 	FLatLon TopLeft, BottomRight;
 	TArray<FPlaneMissionPointNative> PointsNative = GetPlanePointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
 
-	return FPlaneMissionPointList(Path, ConvertPoints<FPlaneMissionPoint>(PointsNative), TopLeft, BottomRight);
+	return FMissionPointList(Path, ConvertPoints<FPlaneMissionPoint>(PointsNative), TopLeft, BottomRight);
 }
 
-FCarMissionPointList UKulaginStatics::GetCarPointsFromFile(FBinaryFilePath Path)
+FMissionPointList UKulaginStatics::GetCarPointsFromFile(FBinaryFilePath Path)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetCarPointsFromFile: Path = %s"), *Path.GetFullPath());
 
@@ -697,10 +697,10 @@ FCarMissionPointList UKulaginStatics::GetCarPointsFromFile(FBinaryFilePath Path)
 	FLatLon TopLeft, BottomRight;
 	TArray<FCarMissionPointNative> PointsNative = GetCarPointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
 
-	return FCarMissionPointList(Path, ConvertPoints<FCarMissionPoint>(PointsNative), TopLeft, BottomRight);
+	return FMissionPointList(Path, ConvertPoints<FCarMissionPoint>(PointsNative), TopLeft, BottomRight);
 }
 
-FHumanMissionPointList UKulaginStatics::GetHumanPointsFromFile(FBinaryFilePath Path)
+FMissionPointList UKulaginStatics::GetHumanPointsFromFile(FBinaryFilePath Path)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Kulagin: GetHumanPointsFromFile: Path = %s"), *Path.GetFullPath());
 
@@ -713,7 +713,7 @@ FHumanMissionPointList UKulaginStatics::GetHumanPointsFromFile(FBinaryFilePath P
 	FLatLon TopLeft, BottomRight;
 	TArray<FHumanMissionPointNative> PointsNative = GetHumanPointsNativeFromFile(WideNativePath, TopLeft, BottomRight);
 
-	return FHumanMissionPointList(Path, ConvertPoints<FHumanMissionPoint>(PointsNative), TopLeft, BottomRight);
+	return FMissionPointList(Path, ConvertPoints<FHumanMissionPoint>(PointsNative), TopLeft, BottomRight);
 }
 
 /* Get native points from file */
@@ -1426,4 +1426,16 @@ void UKulaginStatics::UEToWGS84(FVector Loc, double &Lat, double LatReference, d
 int32 UKulaginStatics::GetZoomMaxIndex()
 {
 	return FMath::Pow(2, MaxZoom - MinZoom);
+}
+
+FString UKulaginStatics::GetFileExtension(const EPointContainerType& Type)
+{
+	switch(Type)
+	{
+	case EPointContainerType::PCT_Mission: return L"BIN";
+	case EPointContainerType::PCT_PlaneMission: return L"PLANE";
+	case EPointContainerType::PCT_CarMission: return L"CAR";
+	case EPointContainerType::PCT_HumanMission: return L"HUMAN";
+	}
+	return L"";
 }
