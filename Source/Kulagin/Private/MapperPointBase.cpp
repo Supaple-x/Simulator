@@ -104,3 +104,15 @@ bool AMapperPointBase::SetDataFromPoint_Implementation(AMapperPointBase* Point)
 {
 	return false;
 }
+
+float AMapperPointBase::GetSpeedToPoint_Implementation(const FVector& CurrentLocation)
+{
+	const float Dist = FVector::Dist(CurrentLocation, GetActorLocation());
+	return Dist / GetTimeToPoint(CurrentLocation);
+}
+
+float AMapperPointBase::GetTimeToPoint_Implementation(const FVector& CurrentLocation)
+{
+	const float Dist = FVector::Dist(CurrentLocation, GetActorLocation());
+	return Dist / GetSpeedToPoint(CurrentLocation);
+}

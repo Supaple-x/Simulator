@@ -53,4 +53,12 @@ public:
 	bool SetDataFromPoint(AMapperPointBase* Point);
 	virtual bool SetDataFromPoint_Implementation(AMapperPointBase* Point);
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Mapper")
+	float GetSpeedToPoint(const FVector& CurrentLocation);
+	virtual float GetSpeedToPoint_Implementation(const FVector& CurrentLocation);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Mapper")
+	float GetTimeToPoint(const FVector& CurrentLocation);
+	virtual float GetTimeToPoint_Implementation(const FVector& CurrentLocation);
+
 };
