@@ -44,7 +44,7 @@ public:
 	bool bIsRised = true;
 
 	UPROPERTY(BlueprintReadWrite)
-	bool bIsPaused;
+	bool bIsPaused = true;
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<AMapperPointBase*> PointActors;

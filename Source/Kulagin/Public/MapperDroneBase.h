@@ -43,4 +43,20 @@ public:
 	bool IsPaused();
 	virtual bool IsPaused_Implementation();
 
+	/* 
+	 * Using for SetMovingActor
+	 * Return is succeed 
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool SetMovingActorLocation(const FVector& Loc, const bool bTeleport = false);
+	virtual bool SetMovingActorLocation_Implementation(const FVector& Loc, const bool bTeleport = false);
+
+	/*
+	 * Using for SetMovingActor
+	 * Return is succeed 
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool SetMovingActorRotation(const FRotator& Rot, const bool bTeleport = false);
+	virtual bool SetMovingActorRotation_Implementation(const FRotator& Rot, const bool bTeleport = false);
+
 };

@@ -45,3 +45,13 @@ bool AMapperDroneBase::IsPaused_Implementation()
 
 	return true;
 }
+
+bool AMapperDroneBase::SetMovingActorLocation_Implementation(const FVector& Loc, const bool bTeleport)
+{
+	return SetActorLocation(Loc, false, nullptr, TeleportFlagToEnum(bTeleport));
+}
+
+bool AMapperDroneBase::SetMovingActorRotation_Implementation(const FRotator& Rot, const bool bTeleport)
+{
+	return SetActorRotation(Rot, TeleportFlagToEnum(bTeleport));
+}
