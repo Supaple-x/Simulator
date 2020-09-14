@@ -46,6 +46,12 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsPaused = true;
 
+    UPROPERTY(BlueprintReadWrite)
+	bool bIsSwarm = false;
+
+    UPROPERTY(BlueprintReadWrite)
+	TArray<FVector> SwarmLocationOffsets;
+
 	UPROPERTY(BlueprintReadWrite)
 	TArray<AMapperPointBase*> PointActors;
 
@@ -80,6 +86,14 @@ public:
 	bool UpdateDangerZones();
 	virtual bool UpdateDangerZones_Implementation();
 
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool FindCrossPath(const FVector& Loc, const TArray<AMapperContainerBase*>& Containers, const float TimeIn);
+	virtual bool FindCrossPath_Implementation(const FVector& Loc, const TArray<AMapperContainerBase*>& Containers, const float TimeIn);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	bool FindCrossScene(const FVector& Loc, const TArray<AActor*>& IgnoredActors);
+	virtual bool FindCrossScene_Implementation(const FVector& Loc, const TArray<AActor*>& IgnoredActors);
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintPure, Category = "Mapper")
 	float GetTotalTime() const;
 	virtual float GetTotalTime_Implementation() const;
@@ -99,6 +113,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
 	FVector GetLocationAtTime(float TimeIn);
 	virtual FVector GetLocationAtTime_Implementation(float TimeIn);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
+	TArray<FVector> GetSwarmLocationsAtTime(float TimeIn);
+	virtual TArray<FVector> GetSwarmLocationsAtTime_Implementation(float TimeIn);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Mapper")
 	bool StartMoving();

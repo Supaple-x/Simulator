@@ -42,12 +42,12 @@ void AMapperContainerBase::GetPointsOfClass(TSubclassOf<AMapperPointBase> PointC
 
 float AMapperContainerBase::GetDangerZoneRadiusUU() const
 {
-	return DangerZoneRadius / 100. * UKulaginStatics::Scale;
+	return DangerZoneRadius * 0.01 * UKulaginStatics::Scale;
 }
 
 bool AMapperContainerBase::UpdateDangerZones_Implementation()
 {
-	if (ContainerType != EPointContainerType::PCT_Mission)
+    if (ContainerType != EPointContainerType::PCT_Mission)
 		return false;
 
 	DangerZones.Empty();
@@ -62,7 +62,7 @@ bool AMapperContainerBase::UpdateDangerZones_Implementation()
 
 	UWorld* CurrentWorld = GetWorld();
 
-	TArray<AMapperContainerBase*> AllContainers = UKulaginStatics::GetMapperGameMode(this)->PointContainers;
+	const TArray<AMapperContainerBase*> AllContainers = UKulaginStatics::GetMapperGameMode(this)->PointContainers;
 	AActor* CurrentSceneActor = UKulaginStatics::GetMapperGameMode(this)->GetSceneActor();
 	TArray<AActor*> CurrentSceneAttachActors;
 	if (CurrentSceneActor)
@@ -80,94 +80,83 @@ bool AMapperContainerBase::UpdateDangerZones_Implementation()
 		AllComponents.Append(Temp);
 	}
 
-	FCollisionQueryParams TraceParams = FCollisionQueryParams(L"MapperTrace", true);
-	TraceParams.bTraceComplex = true;
-	for (AMapperContainerBase* CurrentContainer : AllContainers)
-	{
-		if (CurrentContainer == nullptr)
-			continue;
+    TArray<AActor*> IgnoredActors;
+    for (AMapperContainerBase* CurrentContainer : AllContainers)
+    {
+        if (CurrentContainer == nullptr)
+            continue;
 
-		TraceParams.AddIgnoredActor(CurrentContainer);
-		TraceParams.AddIgnoredActors(CurrentContainer->GetActorsIgnoreCrossing());
-	}
+        IgnoredActors.Add(CurrentContainer);
+        IgnoredActors.Append(CurrentContainer->GetActorsIgnoreCrossing());
+    }
 
 	for (float CurrentTime = 0.f; CurrentTime < CurrentTotalTime; CurrentTime += 0.05f)
 	{
-		const FVector CurrentLocation = GetLocationAtTime(CurrentTime);
+		const TArray<FVector> ThisSwarm = GetSwarmLocationsAtTime(CurrentTime);
 		bool IsAnyNear = false;
+		bool bIsCrossPathTime = false;
 
-		for (AMapperContainerBase* CurrentContainer : AllContainers)
-		{
-			if (CurrentContainer == nullptr || CurrentContainer == this || CurrentContainer->ContainerType != EPointContainerType::PCT_Mission)
-				continue;
+        for (const FVector& ThisLocation : ThisSwarm)
+        {
+            if (bIsCrossPathTime == false && AllContainers.Num() > 1)
+            {
+                bIsCrossPathTime = FindCrossPath(ThisLocation, AllContainers, CurrentTime);
+                IsAnyNear |= bIsCrossPathTime;
+                bIsCrossPath |= bIsCrossPathTime;
+            }
 
-			if (FVector::PointsAreNear(CurrentLocation, CurrentContainer->GetLocationAtTime(CurrentTime), CurrentRadius))
-			{
-				IsAnyNear = true;
-				bIsCrossPath = true;
-				break;
-			}
-		}
+            /*if (bIsCrossScene == false)
+            {
+                bIsCrossScene = FindCrossScene(ThisLocation, IgnoredActors);
+                IsAnyNear |= bIsCrossScene;
+            }*/
 
-		FHitResult OutHit;
-		const FVector StartLocation = CurrentLocation + FVector(0.f, 0.f, 1.f) * CurrentRadius;
-		const FVector EndLocation = CurrentLocation + FVector(0.f, 0.f, -1.f) * CurrentRadius;
-		//const FCollisionShape Shape = FCollisionShape::MakeSphere(CurrentRadius);
-		const FCollisionShape Shape = FCollisionShape::MakeCapsule(CurrentRadius, 0.5f);
+            if (bIsCrossPath && bIsCrossScene) break;
 
-		UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: SweepSingleByChannel v2, time = %f"), CurrentTime);
+            /*if (false)
+            {
+                FVector ClosestPoint;
+                //for (AActor* CurrentCrossActor : CurrentSceneAttachActors)
+                //{
+                    //if (CurrentCrossActor == nullptr)
+                    //	continue;
 
-		//if (CurrentWorld && CurrentWorld->LineTraceSingleByChannel(OutHit, CurrentLocation, NewLocation, ECC_Visibility, TraceParams))
-		if (CurrentWorld && CurrentWorld->SweepSingleByChannel(OutHit, StartLocation, EndLocation, FQuat::Identity, ECC_Visibility, Shape, TraceParams))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: SweepSingleByChannel VALID"));
+                    //UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: CurrentCrossActor = %s, CurrentRadius = %f"), *CurrentCrossActor->GetName(), CurrentRadius);
 
-			IsAnyNear = true;
-			bIsCrossScene = true;
-		}
-		else if (false)
-		{
-			FVector ClosestPoint;
-			//for (AActor* CurrentCrossActor : CurrentSceneAttachActors)
-			//{
-				//if (CurrentCrossActor == nullptr)
-				//	continue;
+                    //const float Dist = CurrentCrossActor->ActorGetDistanceToCollision(CurrentLocation, ECollisionChannel::ECC_Visibility, ClosestPoint);
 
-				//UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: CurrentCrossActor = %s, CurrentRadius = %f"), *CurrentCrossActor->GetName(), CurrentRadius);
+                    //TSet<UActorComponent*> Comps = CurrentCrossActor->GetComponents();
 
-				//const float Dist = CurrentCrossActor->ActorGetDistanceToCollision(CurrentLocation, ECollisionChannel::ECC_Visibility, ClosestPoint);
+                for (UPrimitiveComponent* Prim : AllComponents)
+                {
+                    //if (CurrentComponent == nullptr)
+                    //	continue;
 
-				//TSet<UActorComponent*> Comps = CurrentCrossActor->GetComponents();
+                    //UPrimitiveComponent* Prim = Cast< UPrimitiveComponent>(CurrentComponent);
 
-			for (UPrimitiveComponent* Prim : AllComponents)
-			{
-				//if (CurrentComponent == nullptr)
-				//	continue;
+                    if (Prim == nullptr)
+                        continue;
 
-				//UPrimitiveComponent* Prim = Cast< UPrimitiveComponent>(CurrentComponent);
+                    //UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: CurrentComponent = %s"), *CurrentComponent->GetName());
 
-				if (Prim == nullptr)
-					continue;
+                    const float Dist = Prim->GetDistanceToCollision(ThisLocation, ClosestPoint);
 
-				//UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: CurrentComponent = %s"), *CurrentComponent->GetName());
+                    //UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: Dist = %f"), Dist);
 
-				const float Dist = Prim->GetDistanceToCollision(CurrentLocation, ClosestPoint);
+                    if (Dist >= 0.f && Dist <= CurrentRadius)
+                    {
+                        //UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: VALID SCENE CROSS"));
 
-				//UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: Dist = %f"), Dist);
-
-				if (Dist >= 0.f && Dist <= CurrentRadius)
-				{
-					//UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: VALID SCENE CROSS"));
-
-					IsAnyNear = true;
-					bIsCrossScene = true;
-					break;
-				}
-			}
-			//if (IsAnyNear)
-			//	break;
-		//}
-		}
+                        IsAnyNear = true;
+                        bIsCrossScene = true;
+                        break;
+                    }
+                }
+                //if (IsAnyNear)
+                //	break;
+            //}
+            }*/
+        }
 
 		if (bIsOpenDangerZone && IsAnyNear == false)
 		{
@@ -187,6 +176,53 @@ bool AMapperContainerBase::UpdateDangerZones_Implementation()
 		DangerZones.Add(FDangerZone(LastTime, CurrentTotalTime, bIsCrossPath, bIsCrossScene));
 	}
 	return true;
+}
+
+bool AMapperContainerBase::FindCrossPath_Implementation(const FVector& Loc, const TArray<AMapperContainerBase*>& Containers, const float TimeIn)
+{
+    const float CurrentRadius = GetDangerZoneRadiusUU();
+    for (AMapperContainerBase* CurrentContainer : Containers)
+    {
+        if (CurrentContainer == nullptr || CurrentContainer == this || CurrentContainer->ContainerType != EPointContainerType::PCT_Mission)
+            continue;
+
+        const TArray<FVector> OtherSwarm = CurrentContainer->GetSwarmLocationsAtTime(TimeIn);
+        for (const FVector& OtherLocation : OtherSwarm)
+        {
+            if (FVector::PointsAreNear(Loc, OtherLocation, CurrentRadius))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool AMapperContainerBase::FindCrossScene_Implementation(const FVector& Loc, const TArray<AActor*>& IgnoredActors)
+{
+    FCollisionQueryParams TraceParams = FCollisionQueryParams(L"MapperTrace", true);
+    TraceParams.bTraceComplex = true;
+    TraceParams.AddIgnoredActors(IgnoredActors);
+
+    UWorld* CurrentWorld = GetWorld();
+    const float CurrentRadius = GetDangerZoneRadiusUU();
+
+    FHitResult OutHit;
+    const FVector StartLocation = Loc + FVector(0.f, 0.f, 1.f) * CurrentRadius;
+    const FVector EndLocation = Loc + FVector(0.f, 0.f, -1.f) * CurrentRadius;
+    //const FCollisionShape Shape = FCollisionShape::MakeSphere(CurrentRadius);
+    const FCollisionShape Shape = FCollisionShape::MakeCapsule(CurrentRadius, 0.5f);
+
+    //UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: SweepSingleByChannel v2, time = %f"), CurrentTime);
+
+    //if (CurrentWorld && CurrentWorld->LineTraceSingleByChannel(OutHit, CurrentLocation, NewLocation, ECC_Visibility, TraceParams))
+    if (CurrentWorld && CurrentWorld->SweepSingleByChannel(OutHit, StartLocation, EndLocation, FQuat::Identity, ECC_Visibility, Shape, TraceParams))
+    {
+        //UE_LOG(LogTemp, Warning, TEXT("Kulagin: UpdateDangerZones: SweepSingleByChannel VALID"));
+
+        return true;
+    }
+    return false;
 }
 
 float AMapperContainerBase::GetTotalTime_Implementation() const
@@ -213,6 +249,21 @@ bool AMapperContainerBase::SetMovingActor_Implementation(float NewTime)
 FVector AMapperContainerBase::GetLocationAtTime_Implementation(float TimeIn)
 {
 	return FVector::ZeroVector;
+}
+
+TArray<FVector> AMapperContainerBase::GetSwarmLocationsAtTime_Implementation(float TimeIn)
+{
+    const FVector CurrentLoc = GetLocationAtTime(TimeIn);
+    if (bIsSwarm == false)
+    {
+        return { CurrentLoc };
+    }
+    TArray<FVector> Swarm = SwarmLocationOffsets;
+    for (FVector& el : Swarm)
+    {
+        el += CurrentLoc;
+    }
+    return Swarm;
 }
 
 bool AMapperContainerBase::StartMoving_Implementation()
