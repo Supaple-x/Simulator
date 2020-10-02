@@ -403,10 +403,10 @@ void UKulaginStatics::SpawnDefaultTiles(USceneComponent* Parent, FLatLon TopLeft
 
 #if WITH_EDITOR
 	const int32 TilesMin = GM ? GM->DefaultTilesCount.X : 8;
-	const int32 TilesMax = GM ? GM->DefaultTilesCount.Y : 16;
+	const int32 TilesMax = GM ? GM->DefaultTilesCount.Y : 24;
 #else
 	const int32 TilesMin = 8;
-	const int32 TilesMax = 16;
+	const int32 TilesMax = 24;
 #endif
 
 	const int32 TilesCountX = FMath::Clamp(FMath::Abs(TileTopLeft.X - TileBottomRight.X), TilesMin, TilesMax);
